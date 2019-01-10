@@ -101,3 +101,28 @@ func (u *UserLogin) GetUserInfo(ctx context.Context, db *sql.DB, who, mobile str
 	//sounds good ;-)
 	return &data, nil
 }
+
+func (u *UserLogin) SetUserLogStatus(ctx context.Context, db *sql.DB, who, mobile string, flag int) bool {
+	//check whith type
+	var r string
+
+	switch who {
+	case UserTypeDriver:
+		r = `UPDATE drivers SET logged=?, modified_dt=Now() WHERE  mobile = ?`
+	case UserTypeCustomer:
+		r = `UPDATE customers SET logged=?, modified_dt=Now() WHERE  mobile = ?`
+	}
+
+	result, err := db.ExecContext(ctx, r, flag, mobile)
+	if err != nil {
+		log.Println("SetUserLogStatus", mobile, err)
+		return false
+	}
+	_, err = result.RowsAffected()
+	if err != nil {
+		log.Println("SetUserLogStatus", mobile, err)
+		return false
+	}
+	//sounds good ;-)
+	return true
+}

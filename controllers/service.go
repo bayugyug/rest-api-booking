@@ -189,7 +189,8 @@ func (svc *Service) MapRoute() *chi.Mux {
 			GET      /v1/booking/{booking_id}
 
 	*/
-	// Basic Routes Groupings
+
+	// Protected routes
 	router.Route("/v1", func(r chi.Router) {
 		r.Use(svc.SetContextKeyVal("api.version", "v1"))
 		r.Mount("/api/driver",
@@ -197,7 +198,7 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Put("/", api.UpdateDriver)
-				sr.Post("/", api.CreateDriver)
+				//sr.Post("/", api.CreateDriver)
 				sr.Get("/{id}", api.GetDriver)
 				sr.Delete("/{id}", api.DeleteDriver)
 				return sr
@@ -214,7 +215,7 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Put("/", api.UpdateCustomer)
-				sr.Post("/", api.CreateCustomer)
+				//sr.Post("/", api.CreateCustomer)
 				sr.Get("/{id}", api.GetCustomer)
 				sr.Delete("/{id}", api.DeleteCustomer)
 				return sr
@@ -243,13 +244,21 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr.Get("/{loc}", api.GetAddress)
 				return sr
 			}(svc.Api))
-		r.Mount("/api/login",
-			func(api *ApiHandler) *chi.Mux {
-				sr := chi.NewRouter()
-				sr.Post("/", api.Login)
-				return sr
-			}(svc.Api))
+		/*
+			r.Mount("/api/login",
+				func(api *ApiHandler) *chi.Mux {
+					sr := chi.NewRouter()
+					sr.Post("/", api.Login)
+					return sr
+				}(svc.Api))
+		*/
 
+	})
+
+	router.Group(func(r chi.Router) {
+		r.Post("/v1/api/login", svc.Api.Login)
+		r.Post("/v1/api/customer", svc.Api.CreateCustomer)
+		r.Post("/v1/api/driver", svc.Api.CreateDriver)
 	})
 	return router
 }
@@ -268,7 +277,7 @@ func (svc *Service) SetContextKeyVal(k, v string) func(next http.Handler) http.H
 func (svc *Service) BearerChecker(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, dmp, err := jwtauth.FromContext(r.Context())
-		log.Println("CLAIMS:", dmp)
+		log.Println("CLAIMS:", dmp, r.Method, r.URL.Path, r.URL.RawPath)
 		if err != nil {
 			switch err {
 			default:

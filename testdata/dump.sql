@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS `customers` (
 	`lastname`    varchar(150) DEFAULT NULL,
 	`pass`        varchar(150) DEFAULT NULL,
 	`status`      varchar(20), 
+	`logged`      int(1) default 0, 
 	 
 	`latitude`    decimal(20,20),
 	`longitude`   decimal(20,20),
@@ -34,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `drivers` (
 	`firstname`   varchar(150) DEFAULT NULL,
 	`lastname`    varchar(150) DEFAULT NULL,
 	`pass`        varchar(150) DEFAULT NULL,
+	`logged`      int(1) default 0, 
 	
 	`latitude`    decimal(20,20),
 	`longitude`   decimal(20,20),

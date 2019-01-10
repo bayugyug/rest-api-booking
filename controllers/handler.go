@@ -36,7 +36,27 @@ func (api *ApiHandler) IndexPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *ApiHandler) CreateCustomer(w http.ResponseWriter, r *http.Request) {
-	log.Println("TOKEN: ", api.GetAuthToken(r))
+
+	var err error
+	data := &models.Customer{}
+	if err = render.Bind(r, data); err != nil {
+		log.Println("BIND_FAILED", err)
+		//206
+		api.ReplyErrContent(w, r, http.StatusPartialContent, http.StatusText(http.StatusPartialContent))
+		return
+	}
+	defer r.Body.Close()
+	if data.Type != models.UserTypeCustomer ||
+		data.Pass == "" || data.Firstname == "" ||
+		data.Lastname == "" || data.Mobile == "" {
+		log.Println("MISSING_REQUIRED_PARAMS", data.Type)
+		//206
+		api.ReplyErrContent(w, r, http.StatusPartialContent, http.StatusText(http.StatusPartialContent))
+	}
+	if data.Pass == "" {
+	}
+	log.Println(fmt.Sprintf("%+#v", data))
+
 	//reply
 	render.JSON(w, r,
 		map[string]string{
@@ -235,6 +255,8 @@ func (api *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 		api.ReplyErrContent(w, r, http.StatusNonAuthoritativeInfo, http.StatusText(http.StatusNonAuthoritativeInfo))
 		return
 	}
+	//set flag
+	_ = data.SetUserLogStatus(ApiService.Context, ApiService.DB, data.Type, data.Mobile, 1)
 	//token send
 	render.JSON(w, r,
 		map[string]string{
