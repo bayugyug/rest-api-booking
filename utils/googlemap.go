@@ -12,7 +12,7 @@ import (
 
 const (
 	GoogleApiUri   = "https://maps.googleapis.com/maps/api/geocode/json?key={key}&address="
-	GoogleApiKey   = "AIzaSyCCLNYBuaKzGbyXHdmx_tgf4648wu_T794"
+	GoogleApiKey   = ""
 	MozillaLinuxUA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36"
 )
 
