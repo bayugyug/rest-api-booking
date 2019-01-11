@@ -29,6 +29,15 @@
 
     - Create sample mysql db (refer the testdata/dump.sql)
 
+```sh
+
+	create database restapi;
+	create user restapi;
+	grant all privileges on restapi.* to restapi@localhost identified by 'xxxx';
+	grant all privileges on restapi.* to restapi@127.0.0.1 identified by 'xxxx';
+	flush privileges;
+
+```
 
 ### List of End-Points-Url
 
