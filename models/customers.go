@@ -254,6 +254,33 @@ func (u *Customer) UpdateCustomerPass(ctx context.Context, db *sql.DB, data *Cus
 	return true, nil
 }
 
+
+func (u *Customer) UpdateCustomerPassTmp(ctx context.Context, db *sql.DB, data *Customer) (bool, error) {
+	//fmt
+	r := `UPDATE customers 
+		SET 
+		pass_tmp = ?, 
+		modified_dt = Now() 
+	      WHERE  mobile = ?`
+	//exec
+	result, err := db.ExecContext(ctx, r,
+		data.Pass,
+		data.Mobile,
+	)
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	_, err = result.RowsAffected()
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	//sounds good ;-)
+	return true, nil
+}
+
+
 func (u *Customer) UpdateCustomerStatus(ctx context.Context, db *sql.DB, status, mobile string) (bool, error) {
 	//fmt
 	r := `UPDATE customers 

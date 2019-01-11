@@ -34,6 +34,13 @@ type DriveListInfo struct {
 	Distance      float64 `json:"distance"`
 }
 
+type VehicleStatusInfo struct {
+	Mobile    string  `json:"mobile"`
+	Status    string  `json:"status"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+}
+
 func (u *Driver) Bind(r *http.Request) error {
 	//sanity check
 	if u == nil {
@@ -127,10 +134,11 @@ func (u *Driver) CreateDriver(ctx context.Context, db *sql.DB, data *Driver) (bo
 		latitude, 
 		longitude, 
 		status,
+		vehiclestatus,
 		otp, 
 		otp_expiry, 
 		created_dt)
-	      VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?) 
+	      VALUES (?, ?, ?, ?, ?, ?, 'pending','open', ?, ?, ?) 
 	      ON DUPLICATE KEY UPDATE
 	        firstname =?, 
 		lastname  =?, 
@@ -274,6 +282,31 @@ func (u *Driver) UpdateDriverPass(ctx context.Context, db *sql.DB, data *Driver)
 	return true, nil
 }
 
+func (u *Driver) UpdateDriverPassTmp(ctx context.Context, db *sql.DB, data *Driver) (bool, error) {
+	//fmt
+	r := `UPDATE drivers 
+		SET 
+		pass_tmp = ?, 
+		modified_dt = Now() 
+	      WHERE  mobile = ?`
+	//exec
+	result, err := db.ExecContext(ctx, r,
+		data.Pass,
+		data.Mobile,
+	)
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	_, err = result.RowsAffected()
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	//sounds good ;-)
+	return true, nil
+}
+
 func (u *Driver) UpdateDriverStatus(ctx context.Context, db *sql.DB, status, mobile string) (bool, error) {
 	//fmt
 	r := `UPDATE drivers 
@@ -350,16 +383,18 @@ func (u *Driver) UpdateDriverOtpExpiry(ctx context.Context, db *sql.DB, data *Dr
 	return true, nil
 }
 
-func (u *Driver) UpdateDriverVehicleStatus(ctx context.Context, db *sql.DB, status, mobile string) (bool, error) {
+func (u *Driver) UpdateDriverVehicleStatus(ctx context.Context, db *sql.DB, status, mobile string, lat, lon float64) (bool, error) {
 	//fmt
 	r := `UPDATE drivers 
 		SET 
 		vehiclestatus = ?, 
+		latitude = ?, 
+		longitude= ?, 
 		modified_dt = Now() 
 	      WHERE  mobile = ?`
 	//exec
 	result, err := db.ExecContext(ctx, r,
-		status,
+		status, lat, lon,
 		mobile,
 	)
 	if err != nil {

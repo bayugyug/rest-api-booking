@@ -15,7 +15,6 @@ testrun : clean test
 	time go test -v -bench=. -benchmem -dummy >> testrun.txt 2>&1
 
 prepare : build
-	cp rest-api-booking Docker/rest-api-booking
 
 clean:
 	rm -f rest-api-booking Docker/rest-api-booking

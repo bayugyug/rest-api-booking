@@ -9,7 +9,7 @@ import (
 
 func main() {
 	log.Println("Start")
-	initConfig()
+	config.NewGlobalConfig().InitConfig()
 	//init
 	controllers.ApiService, _ = controllers.NewService(
 		controllers.WithSvcOptAddress(":"+config.ApiConfig.Port),

@@ -210,6 +210,13 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr.Get("/{lat}/{lon}", api.GetDriversList)
 				return sr
 			}(svc.Api))
+		r.Mount("/api/vehiclestatus",
+			func(api *ApiHandler) *chi.Mux {
+				sr := chi.NewRouter()
+				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
+				sr.Put("/", api.UpdateVehicleStatus)
+				return sr
+			}(svc.Api))
 		r.Mount("/api/customer",
 			func(api *ApiHandler) *chi.Mux {
 				sr := chi.NewRouter()
@@ -247,7 +254,8 @@ func (svc *Service) MapRoute() *chi.Mux {
 			func(api *ApiHandler) *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
-				sr.Put("/{who}", api.UpdatePassword)
+				sr.Put("/customer", api.UpdateCustomerPassword)
+				sr.Put("/driver",   api.UpdateDriverPassword)
 				return sr
 			}(svc.Api))
 		r.Mount("/api/status",
@@ -266,6 +274,7 @@ func (svc *Service) MapRoute() *chi.Mux {
 		r.Post("/v1/api/customer", svc.Api.CreateCustomer)
 		r.Post("/v1/api/driver", svc.Api.CreateDriver)
 		r.Put("/v1/api/otp", svc.Api.UpdateOtp)
+		r.Get("/v1/api/logout", svc.Api.Logout)
 	})
 	return router
 }

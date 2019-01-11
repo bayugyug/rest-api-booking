@@ -5,9 +5,11 @@ import (
 	"log"
 )
 
+var DumperFlag = true
+
 func Dumper(infos ...interface{}) {
-	for _, v := range infos {
-		j, _ := json.MarshalIndent(v, "", "\t")
+	if DumperFlag {
+		j, _ := json.MarshalIndent(infos, "", "\t")
 		log.Println(string(j))
 	}
 }

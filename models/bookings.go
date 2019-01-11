@@ -9,7 +9,7 @@ import (
 )
 
 type Booking struct {
-	ID             int     `json:"id"`
+	ID             int64   `json:"id"`
 	MobileCustomer string  `json:"mobile_customer"`
 	MobileDriver   string  `json:"mobile_driver"`
 	Src            string  `json:"src"`
@@ -59,7 +59,7 @@ func (u *Booking) Exists(ctx context.Context, db *sql.DB, id int) int {
 	return uid
 }
 
-func (u *Booking) GetBooking(ctx context.Context, db *sql.DB, id int) (*Booking, error) {
+func (u *Booking) GetBooking(ctx context.Context, db *sql.DB, id string) (*Booking, error) {
 	//fmt
 	r := `SELECT 
 			ifnull(id,''), 
@@ -119,8 +119,8 @@ func (u *Booking) GetBooking(ctx context.Context, db *sql.DB, id int) (*Booking,
 func (u *Booking) CreateBooking(ctx context.Context, db *sql.DB, data *Booking) (bool, error) {
 	//fmt
 	r := `INSERT INTO bookings(
-			mobile_driver, 
 			mobile_customer, 
+			mobile_driver, 
 			src, 
 			src_latitude, 
 			src_longitude, 
@@ -132,7 +132,7 @@ func (u *Booking) CreateBooking(ctx context.Context, db *sql.DB, data *Booking) 
 	      )
 	      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, Now()) `
 	//exec
-	result, err := db.ExecContext(ctx, r,
+	result, err := db.Exec(r,
 		data.MobileCustomer,
 		data.MobileDriver,
 		data.Src,
@@ -151,7 +151,7 @@ func (u *Booking) CreateBooking(ctx context.Context, db *sql.DB, data *Booking) 
 		log.Println("SQL_ERR", err)
 		return false, errors.New("Failed to create")
 	}
-
+	data.ID = id
 	//sounds good ;-)
 	return true, nil
 }
@@ -195,7 +195,7 @@ func (u *Booking) UpdateBooking(ctx context.Context, db *sql.DB, data *Booking) 
 	return true, nil
 }
 
-func (u *Booking) DeleteBooking(ctx context.Context, db *sql.DB, id int) (bool, error) {
+func (u *Booking) DeleteBooking(ctx context.Context, db *sql.DB, id string) (bool, error) {
 	//fmt
 	r := `UPDATE bookings
 		SET 

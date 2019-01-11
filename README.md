@@ -62,6 +62,9 @@ curl -v -X POST 'http://127.0.0.1:8989/v1/api/login'    -d '{"mobile":"658157700
 #Customer Info	
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}"  -X GET 'http://127.0.0.1:8989/v1/api/customer/6581577001' 
 
+#Customer Update Status
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/password/customer'   -d '{"mobile":"6581577001","pass":"1234"}'
+
 #Customer Update GPS Coordinates	
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/location'   -d '{"mobile":"6581577001","type":"customer","latitude":1.35821,"longitude":103.85615}'
 
@@ -109,11 +112,31 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 #Driver Delete	
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/driver'   -d '{"mobile":"6581755001","type":"driver"}'
 
-#Driver List Within Nearest 50 KM Radius /drivers/{LATITUDE}/{LONGITUDE}' 
+#Driver List Within Nearest 50 KM Radius /drivers/{LATITUDE}/{LONGITUDE}
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}"  -X GET 'http://127.0.0.1:8989/v1/api/drivers/1.336209/103.737326'     
 
+#Driver Update Vehicle Status
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/vehiclestatus'   -d '{"mobile":"6581755001","status":"canceled","latitude":1.35991,"longitude":102.85615}'
 
+#Driver Update Status
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/password/driver'   -d '{"mobile":"6581755001","pass":"1234"}'
 
+#Booking Create
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X POST 'http://127.0.0.1:8989/v1/api/booking'  -d '{
+					"mobile_customer":"6581579000",
+					"src":"kembangan",
+					"src_latitude":1.371572,
+					"src_longitude":103.956551,
+					"mobile_driver":"6581755001",
+					"dst":"bugis",
+					"dst_latitude":1.371572,
+					"dst_longitude":103.956551
+					}'
+
+#Booking Info
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X GET 'http://127.0.0.1:8989/v1/api/booking/4'   
+
+```
 
 
 
