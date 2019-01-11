@@ -714,7 +714,35 @@ func (api *ApiHandler) GetLocation(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *ApiHandler) CreateBooking(w http.ResponseWriter, r *http.Request) {
-	log.Println("TOKEN: ", api.GetAuthToken(r))
+
+	token := api.GetAuthToken(r)
+	log.Println("TOKEN: ", token)
+	data := &models.Booking{}
+	if err := render.Bind(r, data); err != nil {
+		log.Println("FAILED_BIND:", err)
+		//204
+		api.ReplyErrContent(w, r, http.StatusNoContent, "Invalid required parameters")
+		return
+	}
+
+	if data.MobileCustomer == "" || data.MobileDriver == "" ||
+		data.Src == "" || data.SrcLatitude == 0 || data.SrcLongitude == 0 ||
+		data.Dst == "" || data.DstLatitude == 0 || data.DstLongitude == 0 {
+		log.Println("MISSING_REQUIRED_PARAMS", data)
+		//206
+		api.ReplyErrContent(w, r, http.StatusPartialContent, http.StatusText(http.StatusPartialContent))
+		return
+	}
+
+	if data.MobileCustomer != token || token == "" || data.MobileCustomer == "" {
+		log.Println("INVALID_TOKEN:", token, data.MobileCustomer)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+
+	//check if have open trip
+
 	//reply
 	render.JSON(w, r,
 		map[string]string{
@@ -735,6 +763,7 @@ func (api *ApiHandler) GetBooking(w http.ResponseWriter, r *http.Request) {
 	log.Println("TOKEN: ", api.GetAuthToken(r))
 	id := strings.TrimSpace(chi.URLParam(r, "id"))
 	log.Println("get", id)
+
 	//reply
 	render.JSON(w, r,
 		map[string]string{

@@ -1,16 +1,9 @@
 package models
 
 const (
-	UserStatusPending      = "pending"
-	UserStatusActive       = "active"
-	UserStatusDeleted      = "deleted"
-	VehicleStatusOpen      = "open"
-	VehicleStatusBooked    = "booked"
-	VehicleStatusCanceled  = "canceled"
-	VehicleStatusTripStart = "trip-start"
-	VehicleStatusTripEnd   = "trip-end"
-	VehicleStatusGasUp     = "gas-up"
-	VehicleStatusPanic     = "panic"
+	UserStatusPending = "pending"
+	UserStatusActive  = "active"
+	UserStatusDeleted = "deleted"
 )
 
 type User struct {

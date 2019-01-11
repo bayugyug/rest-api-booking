@@ -9,7 +9,16 @@ import (
 	"net/http"
 )
 
-const NearestDistance = 50 //km distance nearest
+const (
+	NearestDistance        = 50 //km distance nearest
+	VehicleStatusOpen      = "open"
+	VehicleStatusBooked    = "booked"
+	VehicleStatusCanceled  = "canceled"
+	VehicleStatusTripStart = "trip-start"
+	VehicleStatusTripEnd   = "trip-end"
+	VehicleStatusGasUp     = "gas-up"
+	VehicleStatusPanic     = "panic"
+)
 
 type Driver User
 

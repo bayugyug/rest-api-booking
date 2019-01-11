@@ -5,12 +5,13 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"net/http"
 )
 
 type Booking struct {
 	ID             int     `json:"id"`
-	MobileCustomer int     `json:"mobile_customer"`
-	MobileDriver   int     `json:"mobile_driver"`
+	MobileCustomer string  `json:"mobile_customer"`
+	MobileDriver   string  `json:"mobile_driver"`
 	Src            string  `json:"src"`
 	SrcLatitude    float64 `json:"src_latitude"`
 	SrcLongitude   float64 `json:"src_longitude"`
@@ -24,6 +25,14 @@ type Booking struct {
 	RemarksBy      string  `json:"remarks_by"`
 	Created        string  `json:"created"`
 	Modified       string  `json:"modified"`
+}
+
+func (u *Booking) Bind(r *http.Request) error {
+	//sanity check
+	if u == nil {
+		return errors.New("Missing required parameter")
+	}
+	return nil
 }
 
 func (u *Booking) Exists(ctx context.Context, db *sql.DB, id int) int {
