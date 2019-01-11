@@ -379,7 +379,7 @@ func (u *Driver) GetDriversNearestLocation(ctx context.Context, db *sql.DB, lat,
 
 	var all []DriveListInfo
 
-	//fmt
+	//fmt earth radius 6371 KM
 	r := `SELECT 
 			ifnull(id,''), 
 			ifnull(mobile,''), 
@@ -389,17 +389,22 @@ func (u *Driver) GetDriversNearestLocation(ctx context.Context, db *sql.DB, lat,
 			ifnull(vehiclestatus,''), 
 			ifnull(latitude,0.0), 
 			ifnull(longitude,0.0), 
-			( acos(sin(ifnull(latitude,0.0) * 0.0175) * sin( ? * 0.0175) 
-				+ cos(ifnull(latitude,0.0)* 0.0175) * cos( ? * 0.0175) *    
-				cos((? * 0.0175) - (ifnull(longitude,0.0) * 0.0175))
-		) * 6366 ) as distance
+		   (
+			6371 * acos (
+			  cos ( radians( ? ) )
+			  * cos( radians( ifnull(latitude,0.0 ) ) )
+			  * cos( radians( ifnull(longitude,0.0) ) - radians( ? ) )
+			  + sin ( radians( ? ) )
+			  * sin( radians( ifnull(latitude,0.0) ) )
+			)
+		    ) AS distance
 		FROM  drivers 
 		WHERE status = 'active'
 		HAVING distance < ?
 		ORDER BY distance ASC
 		LIMIT 10
 		`
-	rows, err := db.Query(r, lat, lat, lon, distance)
+	rows, err := db.Query(r, lat, lon, lat, distance)
 	if err != nil {
 		log.Println("SQL_ERR", err)
 		return all, err
