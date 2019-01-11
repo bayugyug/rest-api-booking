@@ -114,7 +114,7 @@ func (api *ApiHandler) UpdateOtp(w http.ResponseWriter, r *http.Request) {
 	case models.UserTypeDriver:
 		api.UpdateDriverOtp(w, r, otp)
 	default:
-		log.Println("MISSING_REQUIRED_PARAMTERS", err, otp)
+		log.Println("MISSING_REQUIRED_PARAMTERS", otp)
 		//206
 		api.ReplyErrContent(w, r, http.StatusPartialContent, "Missing required parameters")
 		return
@@ -501,14 +501,35 @@ func (api *ApiHandler) UpdateDriver(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *ApiHandler) GetDriver(w http.ResponseWriter, r *http.Request) {
-	log.Println("TOKEN: ", api.GetAuthToken(r))
-	id := strings.TrimSpace(chi.URLParam(r, "id"))
-	log.Println("get", id)
+	token := api.GetAuthToken(r)
+	mobile := strings.TrimSpace(chi.URLParam(r, "id"))
+	log.Println("mobile", mobile, ",token", token)
+
+	//token mismatched
+	if mobile != token || token == "" || mobile == "" {
+		log.Println("INVALID_TOKEN:", token, mobile)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+	//get 1
+	data := &models.Driver{}
+	usr, err := data.GetDriver(ApiService.Context, ApiService.DB, mobile)
+
+	//sanity
+	if err != nil {
+		log.Println(err)
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Record not found")
+		return
+	}
+
 	//reply
-	render.JSON(w, r,
-		map[string]string{
-			"status": "Ok",
-		})
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: MsgStatusOK,
+		Result: usr,
+	})
 }
 
 func (api *ApiHandler) DeleteDriver(w http.ResponseWriter, r *http.Request) {
@@ -570,16 +591,16 @@ func (api *ApiHandler) DeleteDriver(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *ApiHandler) GetDriversList(w http.ResponseWriter, r *http.Request) {
-	mobile := strings.TrimSpace(chi.URLParam(r, "mobile"))
+
 	lat := strings.TrimSpace(chi.URLParam(r, "lat"))
 	lon := strings.TrimSpace(chi.URLParam(r, "lon"))
 	token := api.GetAuthToken(r)
 
-	log.Println("getlist", token, lat, lon, mobile)
+	log.Println("getlist", token, lat, lon)
 
 	//token mismatched
-	if mobile != token || token == "" || mobile == "" {
-		log.Println("INVALID_TOKEN:", token, mobile)
+	if token == "" {
+		log.Println("INVALID_TOKEN:", token)
 		//403
 		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
 		return
@@ -650,7 +671,7 @@ func (api *ApiHandler) UpdateLocation(w http.ResponseWriter, r *http.Request) {
 	case models.UserTypeDriver:
 		api.UpdateDriverCoords(w, r, loc)
 	default:
-		log.Println("MISSING_REQUIRED_PARAMTERS", err, loc)
+		log.Println("MISSING_REQUIRED_PARAMTERS", loc)
 		//206
 		api.ReplyErrContent(w, r, http.StatusPartialContent, "Missing required parameters")
 		return
@@ -659,11 +680,32 @@ func (api *ApiHandler) UpdateLocation(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *ApiHandler) GetLocation(w http.ResponseWriter, r *http.Request) {
-	log.Println("TOKEN: ", api.GetAuthToken(r))
-	id := strings.TrimSpace(chi.URLParam(r, "id"))
+
+	token := api.GetAuthToken(r)
+	mobile := strings.TrimSpace(chi.URLParam(r, "mobile"))
 	who := strings.TrimSpace(chi.URLParam(r, "who"))
 
-	log.Println("get-id", id, who)
+	log.Println("get-id", mobile, who, ",tok:", token)
+
+	//token mismatched
+	if mobile != token || token == "" || mobile == "" {
+		log.Println("INVALID_TOKEN:", token, mobile)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+	switch who {
+	case models.UserTypeCustomer:
+		api.GetCustomerCoords(w, r, mobile)
+	case models.UserTypeDriver:
+		api.GetDriverCoords(w, r, mobile)
+	default:
+		log.Println("MISSING_REQUIRED_PARAMTERS")
+		//206
+		api.ReplyErrContent(w, r, http.StatusPartialContent, "Missing required parameters")
+		return
+	}
+
 	//reply
 	render.JSON(w, r,
 		map[string]string{
@@ -894,5 +936,72 @@ func (api *ApiHandler) UpdateDriverCoords(w http.ResponseWriter, r *http.Request
 	render.JSON(w, r, APIResponse{
 		Code:   http.StatusOK,
 		Status: "Location update successful",
+	})
+}
+
+func (api *ApiHandler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
+
+	//206
+	api.ReplyErrContent(w, r, http.StatusPartialContent, "Missing required parameters")
+}
+func (api *ApiHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
+
+	//206
+	api.ReplyErrContent(w, r, http.StatusPartialContent, "Missing required parameters")
+}
+
+func (api *ApiHandler) GetCustomerCoords(w http.ResponseWriter, r *http.Request, mobile string) {
+
+	user := &models.Customer{}
+	row, err := user.GetCustomer(ApiService.Context, ApiService.DB, mobile)
+	//sanity
+	if err != nil {
+		log.Println("RECORD_NOT_FOUND", err)
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Record not found")
+		return
+	}
+
+	if row.Status != models.UserStatusActive {
+		log.Println("INVALID_STATUS", err)
+		//206
+		api.ReplyErrContent(w, r, http.StatusPartialContent, "Status is not active")
+		return
+
+	}
+
+	//reply
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: "Location is found",
+		Result: map[string]interface{}{"latitude": row.Latitude, "longitude": row.Longitude},
+	})
+}
+
+func (api *ApiHandler) GetDriverCoords(w http.ResponseWriter, r *http.Request, mobile string) {
+
+	user := &models.Driver{}
+	row, err := user.GetDriver(ApiService.Context, ApiService.DB, mobile)
+	//sanity
+	if err != nil {
+		log.Println("RECORD_NOT_FOUND", err)
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Record not found")
+		return
+	}
+
+	if row.Status != models.UserStatusActive {
+		log.Println("INVALID_STATUS", err)
+		//206
+		api.ReplyErrContent(w, r, http.StatusPartialContent, "Status is not active")
+		return
+
+	}
+
+	//reply
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: "Location is found",
+		Result: map[string]interface{}{"latitude": row.Latitude, "longitude": row.Longitude},
 	})
 }

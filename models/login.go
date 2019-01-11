@@ -126,3 +126,15 @@ func (u *UserLogin) SetUserLogStatus(ctx context.Context, db *sql.DB, who, mobil
 	//sounds good ;-)
 	return true
 }
+
+type ChangePassworInfo struct {
+	Mobile string `json:"mobile"`
+	Pass   string `json:"pass"`
+	Type   string `json:"type"`
+}
+
+type ChangeStatusInfo struct {
+	Mobile string `json:"mobile"`
+	Status string `json:"pass"`
+	Type   string `json:"type"`
+}

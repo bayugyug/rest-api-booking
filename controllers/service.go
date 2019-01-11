@@ -186,6 +186,8 @@ func (svc *Service) MapRoute() *chi.Mux {
 		PUT      /v1/api/booking/
 		GET      /v1/api/booking/{booking_id}
 
+		PUT      /v1/api/status/{who}
+		PUT      /v1/api/password/{who}
 		PUT      /v1/api/otp
 	*/
 
@@ -205,7 +207,7 @@ func (svc *Service) MapRoute() *chi.Mux {
 			func(api *ApiHandler) *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
-				sr.Get("/{mobile}/{lat}/{lon}", api.GetDriversList)
+				sr.Get("/{lat}/{lon}", api.GetDriversList)
 				return sr
 			}(svc.Api))
 		r.Mount("/api/customer",
@@ -222,7 +224,7 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Put("/", api.UpdateLocation)
-				sr.Get("/{who}/{id}", api.GetLocation)
+				sr.Get("/{who}/{mobile}", api.GetLocation)
 				return sr
 			}(svc.Api))
 		r.Mount("/api/booking",
@@ -239,6 +241,20 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Post("/", api.GetAddress)
+				return sr
+			}(svc.Api))
+		r.Mount("/api/password",
+			func(api *ApiHandler) *chi.Mux {
+				sr := chi.NewRouter()
+				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
+				sr.Put("/{who}", api.UpdatePassword)
+				return sr
+			}(svc.Api))
+		r.Mount("/api/status",
+			func(api *ApiHandler) *chi.Mux {
+				sr := chi.NewRouter()
+				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
+				sr.Put("/{who}", api.UpdateStatus)
 				return sr
 			}(svc.Api))
 
