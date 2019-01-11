@@ -97,7 +97,7 @@ func (u *UserLogin) GetUserInfo(ctx context.Context, db *sql.DB, who, mobile str
 		log.Println("GetLoginInfo", err)
 		return nil, err
 	}
-	data.Type = UserTypeDriver
+	data.Type = who
 	//sounds good ;-)
 	return &data, nil
 }

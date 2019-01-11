@@ -4,22 +4,38 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 )
 
+const NearestDistance = 50 //km distance nearest
+
 type Driver User
+
+type DriveListInfo struct {
+	ID            int64   `json:"id"`
+	Mobile        string  `json:"mobile"`
+	Firstname     string  `json:"firstname"`
+	Lastname      string  `json:"lastname"`
+	Latitude      float64 `json:"latitude"`
+	Longitude     float64 `json:"longitude"`
+	Status        string  `json:"status"`
+	VehicleStatus string  `json:"vehicle_status"`
+	Distance      float64 `json:"distance"`
+}
 
 func (u *Driver) Bind(r *http.Request) error {
 	//sanity check
 	if u == nil {
 		return errors.New("Missing required parameter")
 	}
+	u.Type = UserTypeDriver
 	return nil
 }
 
 func (u *Driver) Exists(ctx context.Context, db *sql.DB, mobile string) int {
-	r := `SELECT id
+	r := `SELECT count(1)
 		FROM  drivers WHERE mobile = ?`
 
 	stmt, err := db.PrepareContext(ctx, r)
@@ -30,13 +46,9 @@ func (u *Driver) Exists(ctx context.Context, db *sql.DB, mobile string) int {
 	defer stmt.Close()
 	var id int
 	err = stmt.QueryRowContext(ctx, mobile).Scan(&id)
-	switch {
-	case err == sql.ErrNoRows:
-		log.Println("SQL_ERR::NO_ROWS", err)
-		return -2
-	case err != nil:
+	if err != nil {
 		log.Println("SQL_ERR::", err)
-		return -3
+		return -2
 	}
 	//sounds good ;-)
 	return id
@@ -50,17 +62,19 @@ func (u *Driver) GetDriver(ctx context.Context, db *sql.DB, mobile string) (*Dri
 			ifnull(firstname,''), 
 			ifnull(lastname,''), 
 			ifnull(status,''), 
+			ifnull(vehiclestatus,''), 
 			ifnull(pass,''), 
 			ifnull(otp,''), 
 			ifnull(otp_expiry,''), 
 			ifnull(latitude,0.0), 
 			ifnull(longitude,0.0), 
 			ifnull(created_dt,''), 
-			ifnull(modified_dt,'')
+			ifnull(modified_dt,''),
+			ifnull((otp_expiry <now()),0)
 		FROM  drivers WHERE mobile = ?`
 	stmt, err := db.PrepareContext(ctx, r)
 	if err != nil {
-		log.Println("SQL_ERR", err)
+		log.Println("SQL_ERR::", err)
 		return nil, err
 	}
 	defer stmt.Close()
@@ -71,6 +85,7 @@ func (u *Driver) GetDriver(ctx context.Context, db *sql.DB, mobile string) (*Dri
 		&data.Firstname,
 		&data.Lastname,
 		&data.Status,
+		&data.VehicleStatus,
 		&data.Pass,
 		&data.Otp,
 		&data.OtpExpiry,
@@ -78,6 +93,7 @@ func (u *Driver) GetDriver(ctx context.Context, db *sql.DB, mobile string) (*Dri
 		&data.Longitude,
 		&data.Created,
 		&data.Modified,
+		&data.OtpExpired,
 	)
 	switch {
 	case err == sql.ErrNoRows:
@@ -94,8 +110,19 @@ func (u *Driver) GetDriver(ctx context.Context, db *sql.DB, mobile string) (*Dri
 
 func (u *Driver) CreateDriver(ctx context.Context, db *sql.DB, data *Driver) (bool, error) {
 	//fmt
-	r := `INSERT INTO drivers (mobile, firstname, lastname, pass, latitude, longitude, status, otp, otp_expiry, created_dt)
-	      VALUES (?, ?, ?, ?, ?, ?, 'pending', Now()) 
+	log.Println(fmt.Sprintf("%+#v", data))
+	r := `INSERT INTO drivers (
+		mobile, 
+		firstname, 
+		lastname, 
+		pass, 
+		latitude, 
+		longitude, 
+		status,
+		otp, 
+		otp_expiry, 
+		created_dt)
+	      VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?) 
 	      ON DUPLICATE KEY UPDATE
 	        firstname =?, 
 		lastname  =?, 
@@ -112,6 +139,7 @@ func (u *Driver) CreateDriver(ctx context.Context, db *sql.DB, data *Driver) (bo
 		data.Longitude,
 		data.Otp,
 		data.OtpExpiry,
+		data.Created,
 		data.Firstname, //update starts here
 		data.Lastname,
 		data.Latitude,
@@ -120,6 +148,15 @@ func (u *Driver) CreateDriver(ctx context.Context, db *sql.DB, data *Driver) (bo
 	if err != nil {
 		log.Println("SQL_ERR", err)
 		return false, errors.New("Failed to create")
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		log.Println("SQL_ERR::NO_LAST_INSERT_ID", err)
+		return false, errors.New("Failed to create")
+	}
+	//user id
+	if id > 0 {
+		data.ID = id
 	}
 	rows, err := result.RowsAffected()
 	if err != nil {
@@ -143,7 +180,7 @@ func (u *Driver) UpdateDriver(ctx context.Context, db *sql.DB, data *Driver) (bo
 		lastname  =?, 
 		latitude  =?, 
 		longitude =?,
-		modified_dt = Now() 
+		modified_dt = ?
 	      WHERE  mobile = ?`
 	//exec
 	result, err := db.ExecContext(ctx, r,
@@ -151,6 +188,7 @@ func (u *Driver) UpdateDriver(ctx context.Context, db *sql.DB, data *Driver) (bo
 		data.Lastname,
 		data.Latitude,
 		data.Longitude,
+		data.Modified,
 		data.Mobile,
 	)
 	if err != nil {
@@ -270,6 +308,57 @@ func (u *Driver) UpdateDriverStatus(ctx context.Context, db *sql.DB, status, mob
 	return true, nil
 }
 
+func (u *Driver) UpdateDriverOtp(ctx context.Context, db *sql.DB, mobile, otp, otpexp string) (bool, error) {
+	//fmt
+	r := `UPDATE drivers 
+		SET 
+		otp = ?, 
+		otp_expiry = ?, 
+		modified_dt = Now() 
+	      WHERE  mobile = ?`
+	//exec
+	result, err := db.ExecContext(ctx, r,
+		otp,
+		otpexp,
+		mobile,
+	)
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	_, err = result.RowsAffected()
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	//sounds good ;-)
+	return true, nil
+}
+
+func (u *Driver) UpdateDriverOtpExpiry(ctx context.Context, db *sql.DB, data *Driver) (bool, error) {
+	//fmt
+	r := `UPDATE drivers 
+		SET 
+		otp_expiry= date_add(now(), interval -1 day), 
+		modified_dt = Now() 
+	      WHERE  mobile = ?`
+	//exec
+	result, err := db.ExecContext(ctx, r,
+		data.Mobile,
+	)
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	_, err = result.RowsAffected()
+	if err != nil {
+		log.Println("SQL_ERR", err)
+		return false, errors.New("Failed to update")
+	}
+	//sounds good ;-)
+	return true, nil
+}
+
 func (u *Driver) UpdateDriverVehicleStatus(ctx context.Context, db *sql.DB, status, mobile string) (bool, error) {
 	//fmt
 	r := `UPDATE drivers 
@@ -295,29 +384,56 @@ func (u *Driver) UpdateDriverVehicleStatus(ctx context.Context, db *sql.DB, stat
 	return true, nil
 }
 
-func (u *Driver) UpdateDriverOtp(ctx context.Context, db *sql.DB, mobile, otp, otpexp string) (bool, error) {
+func (u *Driver) GetDriversNearestLocation(ctx context.Context, db *sql.DB, lat, lon float64, distance int) ([]DriveListInfo, error) {
+
+	var all []DriveListInfo
+
 	//fmt
-	r := `UPDATE customers 
-		SET 
-		otp = ?, 
-		otp_expiry = ?, 
-		modified_dt = Now() 
-	      WHERE  mobile = ?`
-	//exec
-	result, err := db.ExecContext(ctx, r,
-		otp,
-		otpexp,
-		mobile,
-	)
+	r := `SELECT 
+			ifnull(id,''), 
+			ifnull(mobile,''), 
+			ifnull(firstname,''), 
+			ifnull(lastname,''), 
+			ifnull(status,''), 
+			ifnull(vehiclestatus,''), 
+			ifnull(latitude,0.0), 
+			ifnull(longitude,0.0), 
+			( acos(sin(ifnull(latitude,0.0) * 0.0175) * sin( ? * 0.0175) 
+				+ cos(ifnull(latitude,0.0)* 0.0175) * cos( ? * 0.0175) *    
+				cos((? * 0.0175) - (ifnull(longitude,0.0) * 0.0175))
+		) * 6366 ) as distance
+		FROM  drivers 
+		WHERE status = 'active'
+		HAVING distance < ?
+		ORDER BY distance ASC
+		LIMIT 10
+		`
+	rows, err := db.Query(r, lat, lat, lon, distance)
 	if err != nil {
 		log.Println("SQL_ERR", err)
-		return false, errors.New("Failed to update")
+		return all, err
 	}
-	_, err = result.RowsAffected()
-	if err != nil {
-		log.Println("SQL_ERR", err)
-		return false, errors.New("Failed to update")
+	defer rows.Close()
+
+	for rows.Next() {
+		var data DriveListInfo
+		if err := rows.Scan(
+			&data.ID,
+			&data.Mobile,
+			&data.Firstname,
+			&data.Lastname,
+			&data.Status,
+			&data.VehicleStatus,
+			&data.Latitude,
+			&data.Longitude,
+			&data.Distance,
+		); err != nil {
+			log.Println("SQL_ERR::", err)
+			continue
+		}
+		//save
+		all = append(all, data)
 	}
 	//sounds good ;-)
-	return true, nil
+	return all, nil
 }

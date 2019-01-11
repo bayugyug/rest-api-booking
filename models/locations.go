@@ -10,6 +10,7 @@ type Location struct {
 	Mobile    string  `json:"mobile"`
 	Latitude  float64 `json:"latitude"`
 	Longitude float64 `json:"longitude"`
+	Type      string  `json:"type"`
 }
 
 func (u *Location) Bind(r *http.Request) error {

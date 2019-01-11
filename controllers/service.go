@@ -162,32 +162,31 @@ func (svc *Service) MapRoute() *chi.Mux {
 	router.Get("/", svc.Api.IndexPage)
 
 	/*
-			@Driver
-			POST     /v1/driver/
-			PUT      /v1/driver/
-			GET      /v1/driver/{mobile}
-			DELETE   /v1/driver/{mobile}
-			GET      /v1/drivers/
+		@Driver
+		POST     /v1/api/driver
+		PUT      /v1/api/driver
+		GET      /v1/api/driver/{mobile}
+		DELETE   /v1/api/driver
+		GET      /v1/api/drivers
 
 
-			@Customer
-			POST     /v1/customer/
-			PUT      /v1/customer/
-			GET      /v1/customer/{mobile}
-			DELETE   /v1/customer/{mobile}
+		@Customer
+		POST     /v1/api/customer
+		PUT      /v1/api/customer
+		GET      /v1/api/customer/{mobile}
+		DELETE   /v1/api/customer
 
 
-			@Location
-			POST     /v1/location/
-			PUT      /v1/location/
-			GET      /v1/location/{who}/{id}
-		   	POST     /v1/address
+		@Location
+		PUT      /v1/api/location
+		GET      /v1/api/location/{who}/{id}
 
-			@Booking
-			POST     /v1/booking/
-			PUT      /v1/booking/
-			GET      /v1/booking/{booking_id}
+		@Booking
+		POST     /v1/api/booking/
+		PUT      /v1/api/booking/
+		GET      /v1/api/booking/{booking_id}
 
+		PUT      /v1/api/otp
 	*/
 
 	// Protected routes
@@ -199,14 +198,14 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Put("/", api.UpdateDriver)
 				sr.Get("/{id}", api.GetDriver)
-				sr.Delete("/{id}", api.DeleteDriver)
+				sr.Delete("/", api.DeleteDriver)
 				return sr
 			}(svc.Api))
 		r.Mount("/api/drivers",
 			func(api *ApiHandler) *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
-				sr.Get("/{address}", api.GetDriversList)
+				sr.Get("/{mobile}/{lat}/{lon}", api.GetDriversList)
 				return sr
 			}(svc.Api))
 		r.Mount("/api/customer",
@@ -215,14 +214,14 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Put("/", api.UpdateCustomer)
 				sr.Get("/{id}", api.GetCustomer)
-				sr.Delete("/{id}", api.DeleteCustomer)
+				sr.Delete("/", api.DeleteCustomer)
 				return sr
 			}(svc.Api))
 		r.Mount("/api/location",
 			func(api *ApiHandler) *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
-				sr.Post("/", api.UpdateLocation)
+				sr.Put("/", api.UpdateLocation)
 				sr.Get("/{who}/{id}", api.GetLocation)
 				return sr
 			}(svc.Api))
@@ -250,6 +249,7 @@ func (svc *Service) MapRoute() *chi.Mux {
 		r.Post("/v1/api/login", svc.Api.Login)
 		r.Post("/v1/api/customer", svc.Api.CreateCustomer)
 		r.Post("/v1/api/driver", svc.Api.CreateDriver)
+		r.Put("/v1/api/otp", svc.Api.UpdateOtp)
 	})
 	return router
 }

@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS `customers` (
 	`otp_expiry`  datetime, 
 	`logged`      int(1) default 0, 
 	 
-	`latitude`    decimal(20,20),
-	`longitude`   decimal(20,20),
+	`latitude`    decimal(11,8),
+	`longitude`   decimal(11,8),
 	
 	`created_dt`  datetime,
 	`modified_dt` datetime,
@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS `drivers` (
 	`otp_expiry`  datetime,
 	`logged`      int(1) default 0, 
 	
-	`latitude`    decimal(20,20),
-	`longitude`   decimal(20,20),
+	`latitude`    decimal(11,8),
+	`longitude`   decimal(11,8),
 
 	`status`        varchar(20), 
 	`vehiclestatus` varchar(20), 
@@ -59,11 +59,11 @@ CREATE TABLE IF NOT EXISTS `bookings` (
 	`mobile_driver`    varchar(20) NOT NULL,
 	`mobile_customer`  varchar(20) NOT NULL,
 	`src`              varchar(255),
-	`src_latitude`     decimal(20,20),
-	`src_longitude`    decimal(20,20),
+	`src_latitude`     decimal(11,8),
+	`src_longitude`    decimal(11,8),
 	`dst`              varchar(255),
-	`dst_latitude`     decimal(20,20),
-	`dst_longitude`    decimal(20,20),
+	`dst_latitude`     decimal(11,8),
+	`dst_longitude`    decimal(11,8),
     `status`           varchar(20), 
 	`remarks`          varchar(255),
 	`remarks_by`       varchar(20),

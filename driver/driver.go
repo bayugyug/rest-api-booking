@@ -11,11 +11,11 @@ import (
 
 //DbConnectorConfig sql credentials
 type DbConnectorConfig struct {
-	User string
-	Pass string
-	Host string
-	Port int
-	Name string
+	User string `json:"user"`
+	Pass string `json:"pass"`
+	Host string `json:"host"`
+	Port int    `json:"port"`
+	Name string `json:"name"`
 }
 
 //NewDbConnector get 1 new db handler
