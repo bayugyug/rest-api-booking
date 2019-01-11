@@ -30,20 +30,83 @@
     - Create sample mysql db (refer the testdata/dump.sql)
 
 
-### List of end-points-url
+### List of End-Points-Url
+
 
 ```sh
-curl -v -X GET  'http://127.0.0.1:8989/v1/api/driver/6581579999'
-curl -v -X GET  'http://127.0.0.1:8989/v1/api/drivers/addresshere'
-curl -v -X GET  'http://127.0.0.1:8989/v1/api/customer/6581578888'
-curl -v -X GET  'http://127.0.0.1:8989/v1/api/booking/2'
-curl -v -X GET  'http://127.0.0.1:8989/v1/api/location/{driver|customer}/address'
-curl -v -X GET  'http://127.0.0.1:8989/v1/api/address'  -d '{"address":"200 Victoria Street Bugis Junction Singapore"}'
-curl -v -X POST 'http://127.0.0.1:8989/v1/api/login'    -d '{"mobile":"6581578888","pass":"dabis","type":"customer"}'
+
+#Customer Create
+curl -v -X POST 'http://127.0.0.1:8989/v1/api/customer'  -d '{
+					"mobile":"6581577001",
+					"pass":"8888",
+					"latitude":1.304832,
+					"longitude":103.852844,
+					"firstname":"customer",
+					"lastname": "dabis"
+					}'
+#Customer OTP
+curl -v -X PUT 'http://127.0.0.1:8989/v1/api/otp'     -d '{"mobile":"6581577001","otp":"07814","type":"customer"}'
+
+#Customer Login			
+curl -v -X POST 'http://127.0.0.1:8989/v1/api/login'    -d '{"mobile":"6581577001","pass":"8888","type":"customer"}'
+
+#Customer Info	
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}"  -X GET 'http://127.0.0.1:8989/v1/api/customer/6581577001' 
+
+#Customer Update GPS Coordinates	
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/location'   -d '{"mobile":"6581577001","type":"customer","latitude":1.35821,"longitude":103.85615}'
+
+#Customer Update
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/customer'  -d '{
+					"mobile":"6581579000",
+					"latitude":1.304832,
+					"longitude":103.852855,
+					"firstname":"customer",
+					"lastname": "dabis"
+					}'
+#Customer Delete	
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/customer'   -d '{"mobile":"6581579000","type":"customer"}'
+
+#Driver Create
+curl -v -X POST 'http://127.0.0.1:8989/v1/api/driver'  -d '{
+					"mobile":"6581755001",
+					"pass":"8888",
+					"latitude":1.304832,
+					"longitude":103.852844,
+					"firstname":"driver",
+					"lastname": "dabis"
+					}'
+#Driver OTP
+curl -v -X PUT 'http://127.0.0.1:8989/v1/api/otp' -d '{"mobile":"6581755001","otp":"03790","type":"driver"}'
+
+#Driver Login			
+curl -v -X POST 'http://127.0.0.1:8989/v1/api/login'    -d '{"mobile":"6581755001","pass":"8888","type":"driver"}'
+
+#Driver Info	
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}"  -X GET 'http://127.0.0.1:8989/v1/api/driver/6581755001' 
+
+#Driver Update GPS Coordinates	
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/location'   -d '{"mobile":"6581755001","type":"driver","latitude":1.35991,"longitude":102.85615}'
 
 
-curl -v -X GET  -H "Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDcyNDg1MDQsIm1vYmlsZSI6IjY1ODE1NzkwNTgifQ.vMpIOmMZXsaWtu4sQj28SoB-SyS6qxZCjD0ikoOyuTU" 'http://127.0.0.1:8989/v1/api/location/address'
-```
+#Driver Update
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/driver'  -d '{
+					"mobile":"6581755001",
+					"latitude":1.304832,
+					"longitude":103.852855,
+					"firstname":"driver",
+					"lastname": "dabis"
+					}'
+#Driver Delete	
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/driver'   -d '{"mobile":"6581755001","type":"driver"}'
+
+#Driver List Within Nearest 50 KM Radius /drivers/{LATITUDE}/{LONGITUDE}' 
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}"  -X GET 'http://127.0.0.1:8989/v1/api/drivers/1.336209/103.737326'     
+
+
+
+
+
 
 
 ### Reference

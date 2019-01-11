@@ -20,7 +20,6 @@ type DbConnectorConfig struct {
 
 //NewDbConnector get 1 new db handler
 func NewDbConnector(cfg DbConnectorConfig) (*sql.DB, error) {
-
 	//get handle
 	var err error
 	var dbh *sql.DB
@@ -38,7 +37,7 @@ func NewDbConnector(cfg DbConnectorConfig) (*sql.DB, error) {
 			log.Println("SQL:", err)
 			time.Sleep(1000 * time.Millisecond)
 		} else {
-			log.Println("db connected")
+			log.Println("CONNECTED:", connstr)
 			break
 		}
 	}

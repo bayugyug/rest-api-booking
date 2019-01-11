@@ -65,7 +65,6 @@ func (api *ApiHandler) CreateCustomer(w http.ResponseWriter, r *http.Request) {
 
 	//md5
 	data.Pass = fmt.Sprintf("%x", md5.Sum([]byte(data.Pass)))
-	log.Println(fmt.Sprintf("%+#v", data))
 
 	//exists
 	old := data.Exists(ApiService.Context, ApiService.DB, data.Mobile)
@@ -398,7 +397,6 @@ func (api *ApiHandler) CreateDriver(w http.ResponseWriter, r *http.Request) {
 
 	//md5
 	data.Pass = fmt.Sprintf("%x", md5.Sum([]byte(data.Pass)))
-	log.Println(fmt.Sprintf("%+#v", data))
 
 	//exists
 	old := data.Exists(ApiService.Context, ApiService.DB, data.Mobile)
@@ -706,11 +704,6 @@ func (api *ApiHandler) GetLocation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//reply
-	render.JSON(w, r,
-		map[string]string{
-			"status": "Ok",
-		})
 }
 
 func (api *ApiHandler) CreateBooking(w http.ResponseWriter, r *http.Request) {
@@ -741,13 +734,74 @@ func (api *ApiHandler) CreateBooking(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//check if have open trip
+	//check if have open trip for driver
+	driver := &models.Driver{}
+	row, err := driver.GetDriver(ApiService.Context, ApiService.DB, data.MobileDriver)
+
+	//sanity
+	if err != nil {
+		log.Println("RECORD_NOT_FOUND", err)
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Driver Record not found")
+		return
+	}
+
+	//check if open
+	if row.VehicleStatus != models.VehicleStatusOpen {
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Driver vehicle status is not valid")
+		return
+	}
+
+	//active
+	if row.Status != models.UserStatusActive {
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Driver status is not valid")
+		return
+	}
+
+	//customer
+	customer := &models.Customer{}
+	prow, err := customer.GetCustomer(ApiService.Context, ApiService.DB, data.MobileCustomer)
+	//sanity
+	if err != nil {
+		log.Println("RECORD_NOT_FOUND", err)
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Customer Record not found")
+		return
+	}
+
+	//active
+	if prow.Status != models.UserStatusActive {
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Customer status is not valid")
+		return
+	}
+	//create
+	data.Status = models.VehicleStatusBooked
+	if oks, err := data.CreateBooking(ApiService.Context, ApiService.DB, data);!oks || err != nil {
+		log.Println("RECORD_CREATE_FAILED", err)
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Record create failed")
+		return
+	}
+
+	//update vehicle-status
+	if oks, err := driver.UpdateDriverVehicleStatus(ApiService.Context, ApiService.DB,
+		models.VehicleStatusBooked,
+		data.MobileDriver); !oks || err != nil {
+		log.Println("RECORD_UPDATE_FAILED", err)
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Record update vehicle-status failed")
+		return
+	}
 
 	//reply
-	render.JSON(w, r,
-		map[string]string{
-			"status": "Ok",
-		})
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: "Create successful",
+		Result: map[string]interface{}{"booking": data.ID},
+	})
 }
 
 func (api *ApiHandler) UpdateBooking(w http.ResponseWriter, r *http.Request) {

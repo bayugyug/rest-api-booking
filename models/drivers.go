@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -16,6 +15,7 @@ const (
 	VehicleStatusCanceled  = "canceled"
 	VehicleStatusTripStart = "trip-start"
 	VehicleStatusTripEnd   = "trip-end"
+	VehicleStatusCompleted = "completed"
 	VehicleStatusGasUp     = "gas-up"
 	VehicleStatusPanic     = "panic"
 )
@@ -119,7 +119,6 @@ func (u *Driver) GetDriver(ctx context.Context, db *sql.DB, mobile string) (*Dri
 
 func (u *Driver) CreateDriver(ctx context.Context, db *sql.DB, data *Driver) (bool, error) {
 	//fmt
-	log.Println(fmt.Sprintf("%+#v", data))
 	r := `INSERT INTO drivers (
 		mobile, 
 		firstname, 
@@ -139,7 +138,7 @@ func (u *Driver) CreateDriver(ctx context.Context, db *sql.DB, data *Driver) (bo
 		longitude =?,
 		modified_dt = Now() `
 	//exec
-	result, err := db.ExecContext(ctx, r,
+	result, err := db.Exec(r,
 		data.Mobile,
 		data.Firstname,
 		data.Lastname,
@@ -159,24 +158,12 @@ func (u *Driver) CreateDriver(ctx context.Context, db *sql.DB, data *Driver) (bo
 		return false, errors.New("Failed to create")
 	}
 	id, err := result.LastInsertId()
-	if err != nil {
-		log.Println("SQL_ERR::NO_LAST_INSERT_ID", err)
-		return false, errors.New("Failed to create")
-	}
-	//user id
-	if id > 0 {
-		data.ID = id
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
+	log.Println("LAST_INSERT_ID", id)
+	if err != nil || id < 1 {
 		log.Println("SQL_ERR", err)
 		return false, errors.New("Failed to create")
 	}
-	if rows != 1 {
-		log.Println("SQL_ERR", err)
-		return false, errors.New("Failed to create")
-
-	}
+	data.ID = id
 	//sounds good ;-)
 	return true, nil
 }
@@ -204,15 +191,10 @@ func (u *Driver) UpdateDriver(ctx context.Context, db *sql.DB, data *Driver) (bo
 		log.Println("SQL_ERR", err)
 		return false, errors.New("Failed to update")
 	}
-	rows, err := result.RowsAffected()
+	_, err = result.RowsAffected()
 	if err != nil {
 		log.Println("SQL_ERR", err)
 		return false, errors.New("Failed to update")
-	}
-	if rows != 1 {
-		log.Println("SQL_ERR", err)
-		return false, errors.New("Failed to update")
-
 	}
 	//sounds good ;-)
 	return true, nil

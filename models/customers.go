@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -94,7 +93,6 @@ func (u *Customer) GetCustomer(ctx context.Context, db *sql.DB, mobile string) (
 
 func (u *Customer) CreateCustomer(ctx context.Context, db *sql.DB, data *Customer) (bool, error) {
 	//fmt
-	log.Println(fmt.Sprintf("%+#v", data))
 	r := `INSERT INTO customers (
 		mobile, 
 		firstname, 
@@ -114,7 +112,7 @@ func (u *Customer) CreateCustomer(ctx context.Context, db *sql.DB, data *Custome
 		longitude =?,
 		modified_dt = Now() `
 	//exec
-	result, err := db.ExecContext(ctx, r,
+	result, err := db.Exec(r,
 		data.Mobile,
 		data.Firstname,
 		data.Lastname,
@@ -134,24 +132,13 @@ func (u *Customer) CreateCustomer(ctx context.Context, db *sql.DB, data *Custome
 		return false, errors.New("Failed to create")
 	}
 	id, err := result.LastInsertId()
-	if err != nil {
+	log.Println("LAST_INSERT_ID", id)
+	if err != nil || id < 1 {
 		log.Println("SQL_ERR::NO_LAST_INSERT_ID", err)
 		return false, errors.New("Failed to create")
 	}
 	//user id
-	if id > 0 {
-		data.ID = id
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		log.Println("SQL_ERR", err)
-		return false, errors.New("Failed to create")
-	}
-	if rows != 1 {
-		log.Println("SQL_ERR", err)
-		return false, errors.New("Failed to create")
-
-	}
+	data.ID = id
 	//sounds good ;-)
 	return true, nil
 }

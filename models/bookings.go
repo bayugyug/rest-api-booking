@@ -146,16 +146,12 @@ func (u *Booking) CreateBooking(ctx context.Context, db *sql.DB, data *Booking) 
 		log.Println("SQL_ERR", err)
 		return false, errors.New("Failed to create")
 	}
-	rows, err := result.RowsAffected()
-	if err != nil {
+	id, err := result.LastInsertId()
+	if err != nil || id < 1 {
 		log.Println("SQL_ERR", err)
 		return false, errors.New("Failed to create")
 	}
-	if rows != 1 {
-		log.Println("SQL_ERR", err)
-		return false, errors.New("Failed to create")
 
-	}
 	//sounds good ;-)
 	return true, nil
 }
