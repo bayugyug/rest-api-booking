@@ -24,3 +24,4 @@ type User struct {
 	Logged        int     `json:"logged"`
 	OtpExpired    int     `json:"-"`
 }
+

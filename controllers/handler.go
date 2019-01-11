@@ -108,10 +108,12 @@ func (api *ApiHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 func (api ApiHandler) GetAuthToken(r *http.Request) string {
 	_, claims, _ := jwtauth.FromContext(r.Context())
-	s := claims["mobile"]
-	if s != nil {
-		return s.(string)
+	
+	//try checking it
+	if token, ok := claims["mobile"].(string); ok  {
+		return token
 	}
+	
 	return ""
 }
 
@@ -126,14 +128,3 @@ func (api ApiHandler) ReplyErrContent(w http.ResponseWriter, r *http.Request, co
 	})
 }
 
-func (api *ApiHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
-
-	//206
-	api.ReplyErrContent(w, r, http.StatusPartialContent, "Missing required parameters")
-}
-
-func (api *ApiHandler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
-
-	//206
-	api.ReplyErrContent(w, r, http.StatusPartialContent, "Missing required parameters")
-}

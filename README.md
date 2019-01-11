@@ -79,6 +79,11 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 #Customer Delete	
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/customer'   -d '{"mobile":"6581579000","type":"customer"}'
 
+ 
+#Customer Update Status		
+curl -v -H "Authorization: BEARER " -X PUT 'http://127.0.0.1:8989/v1/api/status/customer'   -d '{"mobile":"6581579001","status":"active"}'
+
+
 #Driver Create
 curl -v -X POST 'http://127.0.0.1:8989/v1/api/driver'  -d '{
 					"mobile":"6581755001",
@@ -111,6 +116,9 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 					}'
 #Driver Delete	
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/driver'   -d '{"mobile":"6581755001","type":"driver"}'
+
+#Driver Update Status		
+curl -v -H "Authorization: BEARER " -X PUT 'http://127.0.0.1:8989/v1/api/status/driver'   -d '{"mobile":"6581755001","status":"active"}'
 
 #Driver List Within Nearest 50 KM Radius /drivers/{LATITUDE}/{LONGITUDE}
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}"  -X GET 'http://127.0.0.1:8989/v1/api/drivers/1.336209/103.737326'     

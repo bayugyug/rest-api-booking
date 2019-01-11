@@ -407,3 +407,69 @@ func (api *ApiHandler) UpdateVehicleStatus(w http.ResponseWriter, r *http.Reques
 		Status: "VehicleStatus update successful",
 	})
 }
+
+func (api *ApiHandler) UpdateDriverStatus(w http.ResponseWriter, r *http.Request) {
+
+	token := api.GetAuthToken(r)
+	var loc models.User
+	err := json.NewDecoder(r.Body).Decode(&loc)
+	if err != nil || loc.Mobile == "" || loc.Status == "" {
+		utils.Dumper("MISSING_REQUIRED_PARAMETERS", err, loc)
+		//206
+		api.ReplyErrContent(w, r, http.StatusPartialContent, "Missing required parameters")
+		return
+	}
+	defer r.Body.Close()
+	//token mismatched
+	if loc.Mobile != token || token == "" || loc.Mobile == "" {
+		utils.Dumper("INVALID_TOKEN:", token, loc.Mobile)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+
+	user := &models.Driver{}
+	row, err := user.GetDriver(ApiService.Context, ApiService.DB, loc.Mobile)
+	//sanity
+	if err != nil {
+		utils.Dumper("RECORD_NOT_FOUND", err)
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Record not found")
+		return
+	}
+
+	//sanity
+	switch loc.Status {
+	case models.UserStatusPending:
+	case models.UserStatusActive:
+	case models.UserStatusDeleted:
+	default:
+		utils.Dumper("STATUS_INVALID")
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Invalid status")
+		return
+	}
+
+	//same
+	if row.Status == loc.Status {
+		utils.Dumper("STATUS_ALREADY_SET")
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Status already set")
+		return
+	}
+
+	//update
+	oks, err := user.UpdateDriverStatus(ApiService.Context, ApiService.DB, loc.Status, loc.Mobile)
+	if !oks || err != nil {
+		utils.Dumper("UPDATE_FAILED:", loc.Mobile)
+		//500
+		api.ReplyErrContent(w, r, http.StatusInternalServerError, "Status update failed")
+		return
+	}
+
+	//reply
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: "Status update successful",
+	})
+}
