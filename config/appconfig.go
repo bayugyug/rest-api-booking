@@ -10,6 +10,7 @@ import (
 //AppConfig optional parameter structure
 type AppConfig struct {
 	Driver       driver.DbConnectorConfig `json:"driver"`
+	Port         string                   `json:"port"`
 	GoogleApiKey string                   `json:"google_api_key"`
 }
 

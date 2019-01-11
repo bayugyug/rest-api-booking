@@ -12,7 +12,7 @@ func main() {
 	initConfig()
 	//init
 	controllers.ApiService, _ = controllers.NewService(
-		controllers.WithSvcOptAddress(":8989"),
+		controllers.WithSvcOptAddress(":"+config.ApiConfig.Port),
 		controllers.WithSvcOptDbConf(config.ApiConfig.Driver),
 	)
 	//run service

@@ -33,13 +33,16 @@
 ### List of end-points-url
 
 ```sh
-curl -v -X GET  'http://127.0.0.1:8989/v1/api/driver/23432432'
+curl -v -X GET  'http://127.0.0.1:8989/v1/api/driver/6581579999'
 curl -v -X GET  'http://127.0.0.1:8989/v1/api/drivers/addresshere'
-curl -v -X GET  'http://127.0.0.1:8989/v1/api/customer/234324'
-curl -v -X GET  'http://127.0.0.1:8989/v1/api/booking/234324'
-curl -v -X GET  'http://127.0.0.1:8989/v1/api/location/driver/234324'
-curl -v -X GET  'http://127.0.0.1:8989/v1/api/location/customer/234324'
-curl -v -X POST 'http://127.0.0.1:8989/v1/api/login' -d '{"mobile":"6581579058","pass":"dabis","type":"customer"}'
+curl -v -X GET  'http://127.0.0.1:8989/v1/api/customer/6581578888'
+curl -v -X GET  'http://127.0.0.1:8989/v1/api/booking/2'
+curl -v -X GET  'http://127.0.0.1:8989/v1/api/location/{driver|customer}/address'
+curl -v -X GET  'http://127.0.0.1:8989/v1/api/address'  -d '{"address":"200 Victoria Street Bugis Junction Singapore"}'
+curl -v -X POST 'http://127.0.0.1:8989/v1/api/login'    -d '{"mobile":"6581578888","pass":"dabis","type":"customer"}'
+
+
+curl -v -X GET  -H "Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDcyNDg1MDQsIm1vYmlsZSI6IjY1ODE1NzkwNTgifQ.vMpIOmMZXsaWtu4sQj28SoB-SyS6qxZCjD0ikoOyuTU" 'http://127.0.0.1:8989/v1/api/location/address'
 ```
 
 

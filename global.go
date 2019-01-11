@@ -101,6 +101,7 @@ func initEnvParams() {
 //initConfig set defaults for initial reqmts
 func initConfig() {
 	initEnvParams()
+	utils.HttpInit()
 	//try to reconfigure if there is passed params, otherwise use the default
 	if pParamsAppConfig != "" {
 		config.ApiConfig = config.FormatAppConfig(pParamsAppConfig)
@@ -120,6 +121,7 @@ func initConfig() {
 				Name: "restapi",
 			},
 			GoogleApiKey: utils.GoogleApiKey,
+			Port:         "8989",
 		}
 	}
 }

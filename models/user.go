@@ -1,5 +1,18 @@
 package models
 
+const (
+	UserStatusPending      = "pending"
+	UserStatusActive       = "active"
+	UserStatusDeleted      = "deleted"
+	VehicleStatusOpen      = "open"
+	VehicleStatusBooked    = "booked"
+	VehicleStatusCanceled  = "canceled"
+	VehicleStatusTripStart = "trip-start"
+	VehicleStatusTripEnd   = "trip-end"
+	VehicleStatusGasUp     = "gas-up"
+	VehicleStatusPanic     = "panic"
+)
+
 type User struct {
 	ID            int     `json:"id"`
 	Mobile        string  `json:"mobile"`
@@ -13,5 +26,7 @@ type User struct {
 	Modified      string  `json:"modified"`
 	Type          string  `json:"type"`
 	VehicleStatus string  `json:"vehiclestatus"`
+	Otp           string  `json:"otp"`
+	OtpExpiry     string  `json:"otp_expiry"`
 	Logged        int     `json:"logged"`
 }

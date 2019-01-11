@@ -17,20 +17,6 @@ testrun : clean test
 prepare : build
 	cp rest-api-booking Docker/rest-api-booking
 
-docker-devel : prepare
-	-@sudo docker rmi -f bayugyug/rest-api-booking 2>/dev/null || true
-	cd Docker && sudo docker build --no-cache --rm -t bayugyug/rest-api-booking .
-
-docker-wheezy: prepare
-	-@sudo docker rmi -f bayugyug/rest-api-booking 2>/dev/null || true
-	cd Docker && sudo docker build --no-cache --rm -t bayugyug/rest-api-booking -f  wheezy/Dockerfile .
-
-docker-scratch: prepare
-	cd Docker && sudo docker build --no-cache --rm -t bayugyug/rest-api-booking:scratch -f  scratch/Dockerfile .
-
-docker-alpine: prepare
-	cd Docker && sudo docker build --no-cache --rm -t bayugyug/rest-api-booking:alpine  -f  alpine/Dockerfile .
-
 clean:
 	rm -f rest-api-booking Docker/rest-api-booking
 	rm -f benchmarks.xml coverage.xml vet.txt lint.txt testrun.txt

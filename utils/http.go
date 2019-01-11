@@ -24,8 +24,8 @@ const (
 	pHttpPoolName = "http-get-post"
 )
 
-//httpInit initialize the http global
-func httpInit() {
+//HttpInit initialize the http global
+func HttpInit() {
 
 	//init certs
 	poolSSLCerts = x509.NewCertPool()
@@ -42,7 +42,7 @@ func httpInit() {
 					RootCAs:            poolSSLCerts},
 				Dial: (&net.Dialer{
 					Timeout:   time.Duration(30000 * time.Millisecond),
-					KeepAlive: 0,
+					KeepAlive: 1,
 				}).Dial,
 				TLSHandshakeTimeout: 30 * time.Second,
 			},
@@ -51,8 +51,8 @@ func httpInit() {
 	}
 }
 
-//httpPost send request to remote end-point-urls (POST)
-func httpPost(url, body string, hdrs map[string]string) (string, int, error) {
+//HttpPost send request to remote end-point-urls (POST)
+func HttpPost(url, body string, hdrs map[string]string) (string, int, error) {
 	req, err := http.NewRequest("POST", url, bytes.NewBufferString(body))
 	if err != nil {
 		return "", -2, err
@@ -84,8 +84,8 @@ func httpPost(url, body string, hdrs map[string]string) (string, int, error) {
 	return strings.TrimSpace(string(contents)), resp.StatusCode, nil
 }
 
-//httpGet send request to remote end-point-urls (GET)
-func httpGet(url string, hdrs map[string]string) (string, int, error) {
+//HttpGet send request to remote end-point-urls (GET)
+func HttpGet(url string, hdrs map[string]string) (string, int, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return "", -2, err

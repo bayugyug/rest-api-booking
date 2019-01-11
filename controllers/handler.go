@@ -7,8 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bayugyug/rest-api-booking/config"
 	"github.com/bayugyug/rest-api-booking/models"
 	"github.com/bayugyug/rest-api-booking/utils"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/jwtauth"
@@ -17,11 +19,14 @@ import (
 
 const (
 	MsgLoginOkay = "Login successful"
+	MsgStatusOK  = "Success"
+	MsgStatusNOK = "Error"
 )
 
 type APIResponse struct {
-	Code    int
-	Message string
+	Code   int
+	Status string
+	Result interface{}
 }
 
 type ApiHandler struct {
@@ -75,13 +80,27 @@ func (api *ApiHandler) UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 
 func (api *ApiHandler) GetCustomer(w http.ResponseWriter, r *http.Request) {
 	log.Println("TOKEN: ", api.GetAuthToken(r))
-	id := strings.TrimSpace(chi.URLParam(r, "id"))
-	log.Println("get", id)
+	mobile := strings.TrimSpace(chi.URLParam(r, "id"))
+	log.Println("get", mobile)
+
+	//get 1
+	data := &models.Customer{}
+	usr, err := data.GetCustomer(ApiService.Context, ApiService.DB, mobile)
+
+	//sanity
+	if err != nil {
+		log.Println(err)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+
 	//reply
-	render.JSON(w, r,
-		map[string]string{
-			"status": "Ok",
-		})
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: MsgStatusOK,
+		Result: usr,
+	})
 }
 
 func (api *ApiHandler) DeleteCustomer(w http.ResponseWriter, r *http.Request) {
@@ -194,25 +213,56 @@ func (api *ApiHandler) GetBooking(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *ApiHandler) GetAddress(w http.ResponseWriter, r *http.Request) {
-	log.Println("TOKEN: ", api.GetAuthToken(r))
-	loc := strings.TrimSpace(chi.URLParam(r, "loc"))
-	log.Println("location", loc)
+
+	data := &models.Location{}
+	if err := render.Bind(r, data); err != nil {
+		log.Println("BIND_FAILED::INVALID_ADDRESS:", err)
+		//204
+		api.ReplyErrContent(w, r, http.StatusNoContent, "Invalid required parameters")
+		return
+	}
+	log.Println(data)
+	//get token
+	bmobile := api.GetAuthToken(r)
+	log.Println("TOKEN: ", bmobile)
+	if len(bmobile) <= 0 {
+		log.Println("INVALID_TOKEN:", bmobile)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+
+	if len(data.Address) <= 0 {
+		log.Println("INVALID_ADDRESS:", data.Address)
+		//204
+		api.ReplyErrContent(w, r, http.StatusNoContent, "Invalid required parameters")
+		return
+	}
+	data.Mobile = bmobile
+	//try get coords
+	ok, location, err := utils.NewGoogleMapGeoCode(config.ApiConfig.GoogleApiKey).GetCoordinates(data.Address)
+	if !ok || err != nil {
+		log.Println("INVALID_ADDRESS:", data.Address)
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "No coordinates found")
+		return
+	}
 	//reply
-	render.JSON(w, r,
-		map[string]string{
-			"status": "Ok",
-		})
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: "Coordinates found",
+		Result: location,
+	})
 }
 
 func (api *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	var err error
 	data := &models.UserLogin{}
-	//if err := render.DecodeJSON(r.Body, &data); err != nil {
 	if err = render.Bind(r, data); err != nil {
 		log.Println(err)
-		//203
-		api.ReplyErrContent(w, r, http.StatusNonAuthoritativeInfo, http.StatusText(http.StatusNonAuthoritativeInfo))
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
 		return
 	}
 	defer r.Body.Close()
@@ -224,8 +274,8 @@ func (api *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 	//sanity
 	if err != nil {
 		log.Println(err)
-		//203
-		api.ReplyErrContent(w, r, http.StatusNonAuthoritativeInfo, http.StatusText(http.StatusNonAuthoritativeInfo))
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
 		return
 	}
 	//good then check password match
@@ -251,19 +301,18 @@ func (api *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		log.Println("ERROR_TOKEN", err)
-		//203
-		api.ReplyErrContent(w, r, http.StatusNonAuthoritativeInfo, http.StatusText(http.StatusNonAuthoritativeInfo))
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
 		return
 	}
 	//set flag
 	_ = data.SetUserLogStatus(ApiService.Context, ApiService.DB, data.Type, data.Mobile, 1)
 	//token send
-	render.JSON(w, r,
-		map[string]string{
-			"Code":    fmt.Sprintf("%d", http.StatusOK),
-			"Message": MsgLoginOkay,
-			"Token":   token,
-		})
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: MsgLoginOkay,
+		Result: token,
+	})
 }
 
 func (api ApiHandler) GetAuthToken(r *http.Request) string {
@@ -281,7 +330,7 @@ func (api ApiHandler) GetAuthToken(r *http.Request) string {
 //  http.StatusText(http.StatusNoContent)
 func (api ApiHandler) ReplyErrContent(w http.ResponseWriter, r *http.Request, code int, msg string) {
 	render.JSON(w, r, APIResponse{
-		Code:    code,
-		Message: msg,
+		Code:   code,
+		Status: msg,
 	})
 }

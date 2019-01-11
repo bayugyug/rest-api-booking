@@ -181,7 +181,7 @@ func (svc *Service) MapRoute() *chi.Mux {
 			POST     /v1/location/
 			PUT      /v1/location/
 			GET      /v1/location/{who}/{id}
-		    GET      /v1/address/{who}/{id}
+		   	POST     /v1/address
 
 			@Booking
 			POST     /v1/booking/
@@ -198,7 +198,6 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Put("/", api.UpdateDriver)
-				//sr.Post("/", api.CreateDriver)
 				sr.Get("/{id}", api.GetDriver)
 				sr.Delete("/{id}", api.DeleteDriver)
 				return sr
@@ -215,7 +214,6 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Put("/", api.UpdateCustomer)
-				//sr.Post("/", api.CreateCustomer)
 				sr.Get("/{id}", api.GetCustomer)
 				sr.Delete("/{id}", api.DeleteCustomer)
 				return sr
@@ -241,20 +239,13 @@ func (svc *Service) MapRoute() *chi.Mux {
 			func(api *ApiHandler) *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
-				sr.Get("/{loc}", api.GetAddress)
+				sr.Post("/", api.GetAddress)
 				return sr
 			}(svc.Api))
-		/*
-			r.Mount("/api/login",
-				func(api *ApiHandler) *chi.Mux {
-					sr := chi.NewRouter()
-					sr.Post("/", api.Login)
-					return sr
-				}(svc.Api))
-		*/
 
 	})
 
+	//public-routes
 	router.Group(func(r chi.Router) {
 		r.Post("/v1/api/login", svc.Api.Login)
 		r.Post("/v1/api/customer", svc.Api.CreateCustomer)
