@@ -158,10 +158,10 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/booking/dropoff-time/4'   
 
 #Booking Update Status by Customer (canceled)
-curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}I" -X PUT 'http://127.0.0.1:8989/v1/api/booking/status/customer/4'   
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/booking/status/customer/4'   
 
 #Booking Update Status by Driver  (canceled/gas-up/panic)
-curl -v -H "Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDczNDQ0NjYsIm1vYmlsZSI6IjY1ODc3ODgwMDEifQ.qjB2NHO2G4FDbbo5vYp1UHgB9LDcDEq-C4V9p0EmewM" -X PUT 'http://127.0.0.1:8989/v1/api/booking/status/driver/4/{canceled|gas-up|panic}' 
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/booking/status/driver/4/{canceled|gas-up|panic}' 
 
 
 
@@ -197,6 +197,7 @@ curl -v -H "Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiO
 	[x] The formula in determining the nearest location GPS coordinates
 	
 		- Earth radius is 3959 in miles
+		
 		- Earth radius is 6371 in km
 		
 
