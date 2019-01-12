@@ -407,25 +407,20 @@ func (api *ApiHandler) UpdateVehicleStatus(w http.ResponseWriter, r *http.Reques
 func (api *ApiHandler) UpdateDriverStatus(w http.ResponseWriter, r *http.Request) {
 
 	token := api.GetAuthToken(r)
-	var loc models.User
-	err := json.NewDecoder(r.Body).Decode(&loc)
-	if err != nil || loc.Mobile == "" || loc.Status == "" {
-		utils.Dumper("MISSING_REQUIRED_PARAMETERS", err, loc)
-		//206
-		api.ReplyErrContent(w, r, http.StatusPartialContent, "Missing required parameters")
-		return
-	}
-	defer r.Body.Close()
+	mobile := strings.TrimSpace(chi.URLParam(r, "id"))
+	status := strings.TrimSpace(chi.URLParam(r, "status"))
+	utils.Dumper("mobile", mobile, "token", token, "status",status)
+	
 	//token mismatched
-	if loc.Mobile != token || token == "" || loc.Mobile == "" {
-		utils.Dumper("INVALID_TOKEN:", token, loc.Mobile)
+	if mobile != token || token == "" || mobile == "" {
+		utils.Dumper("INVALID_TOKEN:", token, mobile)
 		//403
 		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
 		return
 	}
 
 	user := &models.Driver{}
-	row, err := user.GetDriver(ApiService.Context, ApiService.DB, loc.Mobile)
+	row, err := user.GetDriver(ApiService.Context, ApiService.DB, mobile)
 	//sanity
 	if err != nil {
 		utils.Dumper("RECORD_NOT_FOUND", err)
@@ -435,7 +430,7 @@ func (api *ApiHandler) UpdateDriverStatus(w http.ResponseWriter, r *http.Request
 	}
 
 	//sanity
-	switch loc.Status {
+	switch status {
 	case models.UserStatusPending:
 	case models.UserStatusActive:
 	case models.UserStatusDeleted:
@@ -447,7 +442,7 @@ func (api *ApiHandler) UpdateDriverStatus(w http.ResponseWriter, r *http.Request
 	}
 
 	//same
-	if row.Status == loc.Status {
+	if row.Status == status{
 		utils.Dumper("STATUS_ALREADY_SET")
 		//404
 		api.ReplyErrContent(w, r, http.StatusNotFound, "Status already set")
@@ -455,9 +450,9 @@ func (api *ApiHandler) UpdateDriverStatus(w http.ResponseWriter, r *http.Request
 	}
 
 	//update
-	oks, err := user.UpdateDriverStatus(ApiService.Context, ApiService.DB, loc.Status, loc.Mobile)
+	oks, err := user.UpdateDriverStatus(ApiService.Context, ApiService.DB, status, mobile)
 	if !oks || err != nil {
-		utils.Dumper("UPDATE_FAILED:", loc.Mobile)
+		utils.Dumper("UPDATE_FAILED:", mobile)
 		//500
 		api.ReplyErrContent(w, r, http.StatusInternalServerError, "Status update failed")
 		return

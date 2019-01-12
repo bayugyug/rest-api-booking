@@ -265,8 +265,8 @@ func (svc *Service) MapRoute() *chi.Mux {
 			func(api *ApiHandler) *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
-				sr.Put("/customer", api.UpdateCustomerStatus)
-				sr.Put("/driver", api.UpdateDriverStatus)
+				sr.Put("/customer/{id}/{status}", api.UpdateCustomerStatus)
+				sr.Put("/driver/{id}/{status}", api.UpdateDriverStatus)
 				return sr
 			}(svc.Api))
 		//not-yet implemented ;-)

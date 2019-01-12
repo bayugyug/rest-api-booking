@@ -92,15 +92,15 @@ func TestSomeHandler(t *testing.T) {
 		},
 		{
 			Method: "PUT",
-			URL:    "/v1/api/status/customer",
+			URL:    "/v1/api/status/customer/6500000000/deleted",
 			Bearer: token1,
-			Body:   bytes.NewBufferString(`{"mobile":"6500000000","status":"deleted"}`),
+			Body:   bytes.NewBufferString(``),
 		},
 		{
 			Method: "PUT",
-			URL:    "/v1/api/status/customer",
+			URL:    "/v1/api/status/customer/6500000000/active",
 			Bearer: token1,
-			Body:   bytes.NewBufferString(`{"mobile":"6500000000","status":"active"}`),
+			Body:   bytes.NewBufferString(``),
 		},
 		//DRIVER
 		{
@@ -141,8 +141,8 @@ func TestSomeHandler(t *testing.T) {
 		},
 		{
 			Method: "PUT",
-			URL:    "/v1/api/status/driver",
-			Body:   bytes.NewBufferString(`{"mobile":"6500000001","status":"active"}`),
+			URL:    "/v1/api/status/driver/6500000001/active",
+			Body:   bytes.NewBufferString(``),
 			Bearer: token2,
 		},
 		{

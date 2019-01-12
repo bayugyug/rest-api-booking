@@ -89,8 +89,7 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/customer/6581579000' 
 
 #Customer Update Status		
-curl -v -H "Authorization: BEARER " -X PUT 'http://127.0.0.1:8989/v1/api/status/customer'   -d '{"mobile":"6581579001","status":"active"}'
-
+curl -v -H "Authorization: BEARER " -X PUT 'http://127.0.0.1:8989/v1/api/status/customer/6581579001/active'
 
 #Driver Create
 curl -v -X POST 'http://127.0.0.1:8989/v1/api/driver'  -d '{
@@ -126,7 +125,7 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/driver/6581755001'
 
 #Driver Update Status		
-curl -v -H "Authorization: BEARER " -X PUT 'http://127.0.0.1:8989/v1/api/status/driver'   -d '{"mobile":"6581755001","status":"active"}'
+curl -v -H "Authorization: BEARER " -X PUT 'http://127.0.0.1:8989/v1/api/status/driver/6581755001/active' 
 
 #Driver Update Password
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/password/driver'   -d '{"mobile":"6581755001","pass":"1234"}'
@@ -208,7 +207,7 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 
         [x] Api is using the nearest 50KM as default
 
-		
+
 
 ### Reference
 
