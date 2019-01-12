@@ -10,14 +10,13 @@
 	
 ```sh
 
-    go get -u -v github.com/go-chi/chi
-    go get -u -v github.com/go-chi/chi/middleware
-    go get -u -v github.com/go-chi/cors
-    go get -u -v github.com/go-chi/jwtauth
-    go get -u -v github.com/go-chi/render
-	go get -u -v github.com/dgrijalva/jwt-go
-	go get -u -v github.com/go-sql-driver/mysql
-	go get -u -v github.com/bayugyug/rest-api-booking/driver
+		go get -u -v github.com/go-chi/chi
+		go get -u -v github.com/go-chi/chi/middleware
+		go get -u -v github.com/go-chi/cors
+		go get -u -v github.com/go-chi/jwtauth
+		go get -u -v github.com/go-chi/render
+		go get -u -v github.com/dgrijalva/jwt-go
+		go get -u -v github.com/go-sql-driver/mysql
 
 ```
 
