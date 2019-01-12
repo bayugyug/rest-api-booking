@@ -65,6 +65,12 @@ func (api *ApiHandler) CreateDriver(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, APIResponse{
 		Code:   http.StatusOK,
 		Status: "Create successful",
+		Result: map[string]interface{}{
+			"otp": data.Otp, 
+			"otp-expiry": data.OtpExpiry,
+			"mobile": data.Mobile, 
+			"uid": data.ID, 
+			},
 	})
 
 }

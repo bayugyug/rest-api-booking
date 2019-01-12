@@ -6,6 +6,7 @@
 ### Pre-Requisite
 	
 	- Please run this in your command line to ensure packages are in-place.
+	  (normally these will be handled when compiling the api binary)
 	
 ```sh
 
@@ -15,6 +16,8 @@
     go get -u -v github.com/go-chi/jwtauth
     go get -u -v github.com/go-chi/render
 	go get -u -v github.com/dgrijalva/jwt-go
+	go get -u -v github.com/go-sql-driver/mysql
+	go get -u -v github.com/bayugyug/rest-api-booking/driver
 
 ```
 
@@ -174,9 +177,11 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
     [x] The api can accept a json format configuration
 	
 	[x] Fields:
+	
 		- port    = port to run the http server (default: 8989)
-		- driver  = database user/pass/dbname details for mysql
+		- driver  = database details for mysql  (user/pass/dbname/host/port)
 		- showlog = flag for dev't log on std-out
+		
 		
 ```sh
 

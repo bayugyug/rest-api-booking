@@ -58,6 +58,16 @@ func (api *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 		api.ReplyErrContent(w, r, http.StatusNotFound, "Record not found")
 		return
 	}
+	
+	//status check 1st
+	if usr.Status != "active" {
+		utils.Dumper("LOGIN_ACCOUNT_NOT_ACTIVE", usr.Status)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Account is not active")
+		return
+	}
+	
+	
 	//good then check password match
 	if data.Hash != usr.Pass {
 		utils.Dumper("LOGIN_PASSWORD_MISMATCH")
@@ -65,13 +75,7 @@ func (api *ApiHandler) Login(w http.ResponseWriter, r *http.Request) {
 		api.ReplyErrContent(w, r, http.StatusForbidden, "Password mismatch or invalid")
 		return
 	}
-	//good then check password match
-	if usr.Status != "active" {
-		utils.Dumper("LOGIN_ACCOUNT_NOT_ACTIVE", usr.Status)
-		//403
-		api.ReplyErrContent(w, r, http.StatusForbidden, "Account is not active")
-		return
-	}
+
 	//generate new token
 	token, err := utils.AppJwtToken.GenToken(
 		jwt.MapClaims{
