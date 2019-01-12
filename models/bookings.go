@@ -245,12 +245,12 @@ func (u *Booking) UpdateBookingPickupTime(ctx context.Context, db *sql.DB, data 
 	//fmt
 	r := `UPDATE bookings
 		SET 
-		pickup_time = ?,
-		status      = ?,
+		pickup_time = Now(),
+		status      = 'trip-start',
 		modified_dt = Now() 
 	      WHERE  id = ?`
 	//exec
-	result, err := db.ExecContext(ctx, r, data.PickupTime, data.Status, data.ID)
+	result, err := db.ExecContext(ctx, r, data.ID)
 	if err != nil {
 		log.Println("SQL_ERR", err)
 		return false, errors.New("Failed to update")
@@ -268,12 +268,12 @@ func (u *Booking) UpdateBookingDropoffTime(ctx context.Context, db *sql.DB, data
 	//fmt
 	r := `UPDATE bookings
 		SET 
-		dropoff_time= ?,
-		status      = ?,
+		dropoff_time= Now(),
+		status      = 'trip-end',
 		modified_dt = Now() 
 	      WHERE  id = ?`
 	//exec
-	result, err := db.ExecContext(ctx, r, data.Dropofftime, data.Status, data.ID)
+	result, err := db.ExecContext(ctx, r, data.ID)
 	if err != nil {
 		log.Println("SQL_ERR", err)
 		return false, errors.New("Failed to update")

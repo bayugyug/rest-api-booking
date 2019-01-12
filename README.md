@@ -3,8 +3,10 @@
 * [x] Sample golang rest-api that simulates a simple car-booking
 
 
-### Prerequisite
-
+### Pre-Requisite
+	
+	- Please run this in your command line to ensure packages are in-place.
+	
 ```sh
 
     go get -u -v github.com/go-chi/chi
@@ -12,6 +14,7 @@
     go get -u -v github.com/go-chi/cors
     go get -u -v github.com/go-chi/jwtauth
     go get -u -v github.com/go-chi/render
+	go get -u -v github.com/dgrijalva/jwt-go
 
 ```
 
@@ -25,10 +28,14 @@
 
 ```
 
-### Required data preparation
+### Required Data Preparation
 
-    - Create sample mysql db (refer the testdata/dump.sql)
-
+    - Create sample mysql db
+	
+	- Needs to create the api database and grant the necessary permissions
+	
+	- Refer the testdata/dump.sql
+	
 ```sh
 
 	create database restapi;
@@ -144,17 +151,60 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X POST 'http://127.0.0.1:
 #Booking Info
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X GET 'http://127.0.0.1:8989/v1/api/booking/4'   
 
+#Booking Update Pickup Time  & Set Status to Trip-Start
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/booking/pickup-time/4'   
+
+#Booking Update Dropoff Time & Set Status to Trip-End
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/booking/dropoff-time/4'   
+
+#Booking Update Status by Customer (canceled)
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}I" -X PUT 'http://127.0.0.1:8989/v1/api/booking/status/customer/4'   
+
+#Booking Update Status by Driver  (canceled/gas-up/panic)
+curl -v -H "Authorization: BEARER eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDczNDQ0NjYsIm1vYmlsZSI6IjY1ODc3ODgwMDEifQ.qjB2NHO2G4FDbbo5vYp1UHgB9LDcDEq-C4V9p0EmewM" -X PUT 'http://127.0.0.1:8989/v1/api/booking/status/driver/4/{canceled|gas-up|panic}' 
+
+
+
+
 ```
 
 
+### Mini-How-To on running the api binary
 
+    [x] The api can accept a json format configuration
+	
+	[x] Fields:
+		- port    = port to run the http server (default: 8989)
+		- driver  = database user/pass/dbname details for mysql
+		- showlog = flag for dev't log on std-out
+		
+```sh
+
+	 ./rest-api-booking --config '{"port":"8989",
+		"driver":{
+			"user":"restapi",
+			"pass":"xxxxx",
+			"port":3306,
+			"name":"restapi",
+			"host":"127.0.0.1"},
+		"showlog":false}'
+
+
+```
+
+### Notes
+
+	[x] The formula in determining the nearest location GPS coordinates
+	
+		- Earth radius is 3959 in miles
+		- Earth radius is 6371 in km
+		
 
 ### Reference
 
-[GPS Coordinates Generator:www.latlong.net](https://www.latlong.net/)
+[GPS Coordinates Generator: www.latlong.net](https://www.latlong.net/)
 
-[GPS Coordinates Generator:www.mapdevelopers.com](https://www.mapdevelopers.com/draw-circle-tool.php)
-
+[GPS Coordinates Generator: www.mapdevelopers.com](https://www.mapdevelopers.com/draw-circle-tool.php)
 
 
 ### License

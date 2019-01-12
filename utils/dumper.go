@@ -5,10 +5,10 @@ import (
 	"log"
 )
 
-var DumperFlag = true
+var ShowMeLog = true
 
 func Dumper(infos ...interface{}) {
-	if DumperFlag {
+	if ShowMeLog {
 		j, _ := json.MarshalIndent(infos, "", "\t")
 		log.Println(string(j))
 	}

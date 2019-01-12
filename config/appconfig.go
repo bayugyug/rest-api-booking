@@ -12,6 +12,7 @@ type AppConfig struct {
 	Driver       driver.DbConnectorConfig `json:"driver"`
 	Port         string                   `json:"port"`
 	GoogleApiKey string                   `json:"google_api_key"`
+	Showlog      bool                     `json:"showlog"`
 }
 
 //api global handler

@@ -153,3 +153,254 @@ func (api *ApiHandler) GetBooking(w http.ResponseWriter, r *http.Request) {
 		Result: map[string]interface{}{"booking": book},
 	})
 }
+
+func (api *ApiHandler) UpdateBookingPickupTime(w http.ResponseWriter, r *http.Request) {
+	token := api.GetAuthToken(r)
+	bookid := strings.TrimSpace(chi.URLParam(r, "id"))
+
+	utils.Dumper("bookid", bookid, ",token", token)
+
+	if token == "" {
+		utils.Dumper("INVALID_TOKEN:", token)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+
+	data := &models.Booking{}
+
+	//get 1
+	book, err := data.GetBooking(ApiService.Context, ApiService.DB, bookid)
+
+	//sanity
+	if err != nil {
+		utils.Dumper("RECORD_NOT_FOUND", err)
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Booking Record not found")
+		return
+	}
+
+	//check driver
+	if token != book.MobileDriver {
+		utils.Dumper("INVALID_TOKEN::MOBILE_DRIVER_MISMATCH", token, book.MobileDriver)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+
+	//status check
+	if models.VehicleStatusBooked != book.Status {
+		utils.Dumper("INVALID_TOKEN::STATUS_NOT_BOOKED", book.Status)
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Booking status is invalid")
+		return
+	}
+
+	//update time
+	if oks, err := data.UpdateBookingPickupTime(ApiService.Context, ApiService.DB, book); !oks || err != nil {
+		utils.Dumper("RECORD_UPDATE_FAILED", err)
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Pickup Time update failed")
+		return
+	}
+
+	//reply
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: "Pickup Time update successful",
+	})
+}
+
+func (api *ApiHandler) UpdateBookingDropTime(w http.ResponseWriter, r *http.Request) {
+	token := api.GetAuthToken(r)
+	bookid := strings.TrimSpace(chi.URLParam(r, "id"))
+
+	utils.Dumper("bookid", bookid, ",token", token)
+
+	if token == "" {
+		utils.Dumper("INVALID_TOKEN:", token)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+
+	data := &models.Booking{}
+
+	//get 1
+	book, err := data.GetBooking(ApiService.Context, ApiService.DB, bookid)
+
+	//sanity
+	if err != nil {
+		utils.Dumper("RECORD_NOT_FOUND", err)
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Booking Record not found")
+		return
+	}
+
+	//check driver
+	if token != book.MobileDriver {
+		utils.Dumper("INVALID_TOKEN::MOBILE_DRIVER_MISMATCH", token, book.MobileDriver)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+
+	//status check
+	if models.VehicleStatusTripStart != book.Status {
+		utils.Dumper("INVALID_TOKEN::STATUS_NOT_TRIP_START", book.Status)
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Booking status is invalid")
+		return
+	}
+
+	//update time
+	if oks, err := data.UpdateBookingDropoffTime(ApiService.Context, ApiService.DB, book); !oks || err != nil {
+		utils.Dumper("RECORD_UPDATE_FAILED", err)
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Dropoff Time update failed")
+		return
+	}
+
+	//reply
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: "Dropoff Time update successful",
+	})
+}
+
+func (api *ApiHandler) UpdateBookingCustomerStatus(w http.ResponseWriter, r *http.Request) {
+	token := api.GetAuthToken(r)
+	bookid := strings.TrimSpace(chi.URLParam(r, "id"))
+
+	utils.Dumper("bookid", bookid, "token", token)
+
+	if token == "" {
+		utils.Dumper("INVALID_TOKEN:", token)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+
+	data := &models.Booking{}
+
+	//get 1
+	book, err := data.GetBooking(ApiService.Context, ApiService.DB, bookid)
+
+	//sanity
+	if err != nil {
+		utils.Dumper("RECORD_NOT_FOUND", err)
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Booking Record not found")
+		return
+	}
+
+	//check customer
+	if token != book.MobileCustomer {
+		utils.Dumper("INVALID_TOKEN::MOBILE_CUSTOMER_MISMATCH", token, book.MobileCustomer)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+
+	//status check, only can cancel if booked
+	if models.VehicleStatusBooked != book.Status {
+		utils.Dumper("INVALID_TOKEN::STATUS_NOT_BOOKED", book.Status)
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Booking status is invalid")
+		return
+	}
+
+	//set params
+	book.Remarks = models.VehicleStatusCanceled
+	book.RemarksBy = "Customer"
+	book.Status = models.VehicleStatusCanceled
+	utils.Dumper("RECORD", book)
+	//update status
+	if oks, err := data.UpdateBookingStatus(ApiService.Context, ApiService.DB, book); !oks || err != nil {
+		utils.Dumper("RECORD_UPDATE_FAILED", err)
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Booking status update failed")
+		return
+	}
+
+	//reply
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: "Booking status update successful",
+	})
+}
+
+func (api *ApiHandler) UpdateBookingDriverStatus(w http.ResponseWriter, r *http.Request) {
+	token := api.GetAuthToken(r)
+	bookid := strings.TrimSpace(chi.URLParam(r, "id"))
+	bookstatus := strings.TrimSpace(chi.URLParam(r, "status"))
+
+	utils.Dumper("bookid", bookid, "token", token, "book-status", bookstatus)
+
+	if token == "" {
+		utils.Dumper("INVALID_TOKEN:", token)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+
+	//allowed only (cancel,gas-up,panic)
+	switch bookstatus {
+	case models.VehicleStatusCanceled:
+	case models.VehicleStatusGasUp:
+	case models.VehicleStatusPanic:
+	default:
+		utils.Dumper("INVALID_TOKEN::STATUS_NOT_ALLOWED", bookstatus)
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Booking status is not allowed")
+		return
+	}
+
+	data := &models.Booking{}
+
+	//get 1
+	book, err := data.GetBooking(ApiService.Context, ApiService.DB, bookid)
+
+	//sanity
+	if err != nil {
+		utils.Dumper("RECORD_NOT_FOUND", err)
+		//404
+		api.ReplyErrContent(w, r, http.StatusNotFound, "Booking Record not found")
+		return
+	}
+
+	//check customer
+	if token != book.MobileDriver {
+		utils.Dumper("INVALID_TOKEN::MOBILE_DRIVER_MISMATCH", token, book.MobileDriver)
+		//403
+		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
+		return
+	}
+
+	//status check, only can cancel if booked
+	if models.VehicleStatusBooked != book.Status {
+		utils.Dumper("INVALID_TOKEN::STATUS_NOT_BOOKED", book.Status)
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Booking status is invalid")
+		return
+	}
+
+	//set params
+	book.Remarks = bookstatus
+	book.RemarksBy = "Driver"
+	book.Status = bookstatus
+	utils.Dumper("RECORD", book)
+	//update status
+	if oks, err := data.UpdateBookingStatus(ApiService.Context, ApiService.DB, book); !oks || err != nil {
+		utils.Dumper("RECORD_UPDATE_FAILED", err)
+		//400
+		api.ReplyErrContent(w, r, http.StatusBadRequest, "Booking status update failed")
+		return
+	}
+
+	//reply
+	render.JSON(w, r, APIResponse{
+		Code:   http.StatusOK,
+		Status: "Booking status update successful",
+	})
+}

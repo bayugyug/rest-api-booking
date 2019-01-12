@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -241,6 +240,10 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr.Put("/", api.UpdateBooking)
 				sr.Post("/", api.CreateBooking)
 				sr.Get("/{id}", api.GetBooking)
+				sr.Put("/pickup-time/{id}", api.UpdateBookingPickupTime)
+				sr.Put("/dropoff-time/{id}", api.UpdateBookingDropTime)
+				sr.Put("/status/customer/{id}", api.UpdateBookingCustomerStatus)
+				sr.Put("/status/driver/{id}/{status}", api.UpdateBookingDriverStatus)
 				return sr
 			}(svc.Api))
 		r.Mount("/api/address",
@@ -255,7 +258,7 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Put("/customer", api.UpdateCustomerPassword)
-				sr.Put("/driver",   api.UpdateDriverPassword)
+				sr.Put("/driver", api.UpdateDriverPassword)
 				return sr
 			}(svc.Api))
 		r.Mount("/api/status",
@@ -263,7 +266,7 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr := chi.NewRouter()
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Put("/customer", api.UpdateCustomerStatus)
-				sr.Put("/driver",   api.UpdateDriverStatus)
+				sr.Put("/driver", api.UpdateDriverStatus)
 				return sr
 			}(svc.Api))
 
@@ -293,8 +296,8 @@ func (svc *Service) SetContextKeyVal(k, v string) func(next http.Handler) http.H
 //BearerChecker check token
 func (svc *Service) BearerChecker(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token, dmp, err := jwtauth.FromContext(r.Context())
-		log.Println("CLAIMS:", dmp, r.Method, r.URL.Path, r.URL.RawPath)
+		token, _, err := jwtauth.FromContext(r.Context())
+
 		if err != nil {
 			switch err {
 			default:
@@ -317,7 +320,7 @@ func (svc *Service) BearerChecker(next http.Handler) http.Handler {
 			svc.Api.ReplyErrContent(w, r, http.StatusUnauthorized, http.StatusText(http.StatusUnauthorized))
 			return
 		}
-		log.Println("TOKEN:", fmt.Sprintf("%#v", token.Raw))
+
 		// Token is authenticated, pass it through
 		next.ServeHTTP(w, r)
 	})
