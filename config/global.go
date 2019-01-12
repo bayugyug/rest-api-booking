@@ -33,7 +33,7 @@ var (
 	//signal flag
 	pLogDir          = "."
 	pBuildTime       = "0"
-	pVersion         = "0.1.0" + "-" + pBuildTime
+	ApiVersion       = "0.1.0" + "-" + pBuildTime
 	pParamsAppConfig = ""
 	pEnvVars         = map[string]*string{
 		"REST_API_BOOKING_CONFIG": &pParamsAppConfig,

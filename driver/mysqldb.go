@@ -37,7 +37,7 @@ func NewDbConnector(cfg DbConnectorConfig) (*sql.DB, error) {
 			log.Println("SQL:", err)
 			time.Sleep(1000 * time.Millisecond)
 		} else {
-			log.Println("CONNECTED:", connstr)
+			log.Println("Db driver connected.")
 			break
 		}
 	}
