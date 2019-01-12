@@ -269,6 +269,14 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr.Put("/driver", api.UpdateDriverStatus)
 				return sr
 			}(svc.Api))
+		//not-yet implemented ;-)
+		r.Mount("/api/logout",
+			func(api *ApiHandler) *chi.Mux {
+				sr := chi.NewRouter()
+				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
+				sr.Post("/", api.Logout)
+				return sr
+			}(svc.Api))
 
 	})
 
@@ -278,7 +286,6 @@ func (svc *Service) MapRoute() *chi.Mux {
 		r.Post("/v1/api/customer", svc.Api.CreateCustomer)
 		r.Post("/v1/api/driver", svc.Api.CreateDriver)
 		r.Put("/v1/api/otp", svc.Api.UpdateOtp)
-		r.Get("/v1/api/logout", svc.Api.Logout)
 	})
 	return router
 }
