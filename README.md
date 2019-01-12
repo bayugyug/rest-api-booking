@@ -172,6 +172,8 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 
 ### Mini-How-To on running the api binary
 
+	[x] Prior to running the server, db must be configured first 
+	
     [x] The api can accept a json format configuration
 	
 	[x] Fields:
@@ -182,7 +184,11 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 		
 		- showlog = flag for dev't log on std-out
 		
-		
+	[x] Sanity check
+	    
+		go test ./...
+	
+	
 ```sh
 
 	 ./rest-api-booking --config '{"port":"8989",
