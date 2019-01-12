@@ -199,11 +199,14 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 
 ### Notes
 
-	[x] The formula in determining the nearest location GPS coordinates
-	
-		- Earth radius is 3959 in miles
-		
-		- Earth radius is 6371 in km
+        [x] The formula in determining the nearest location GPS coordinates
+
+                - Earth radius is 3959 in miles
+
+                - Earth radius is 6371 in km
+
+        [x] Api is using the nearest 50KM as default
+
 		
 
 ### Reference

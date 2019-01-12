@@ -10,6 +10,7 @@ import (
 
 const (
 	NearestDistance        = 50 //km distance nearest
+	NearestTopCount        = 10 //top# nearest distance
 	VehicleStatusOpen      = "open"
 	VehicleStatusBooked    = "booked"
 	VehicleStatusCanceled  = "canceled"
@@ -437,9 +438,9 @@ func (u *Driver) GetDriversNearestLocation(ctx context.Context, db *sql.DB, lat,
 		WHERE status = 'active'
 		HAVING distance < ?
 		ORDER BY distance ASC
-		LIMIT 10
+		LIMIT ?
 		`
-	rows, err := db.Query(r, lat, lon, lat, distance)
+	rows, err := db.Query(r, lat, lon, lat, distance, NearestTopCount)
 	if err != nil {
 		log.Println("SQL_ERR", err)
 		return all, err
