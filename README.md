@@ -179,7 +179,9 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 	[x] Fields:
 	
 		- port    = port to run the http server (default: 8989)
+		
 		- driver  = database details for mysql  (user/pass/dbname/host/port)
+		
 		- showlog = flag for dev't log on std-out
 		
 		
@@ -192,7 +194,7 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 			"port":3306,
 			"name":"restapi",
 			"host":"127.0.0.1"},
-		"showlog":false}'
+		"showlog":true}'
 
 
 ```

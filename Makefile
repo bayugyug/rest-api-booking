@@ -17,7 +17,7 @@ testrun : clean test
 prepare : build
 
 clean:
-	rm -f rest-api-booking Docker/rest-api-booking
+	rm -f rest-api-booking
 	rm -f benchmarks.xml coverage.xml vet.txt lint.txt testrun.txt
 
 re: clean all
