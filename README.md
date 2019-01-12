@@ -210,10 +210,12 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 
 
 ### Reference
+	
+	- GPS Coordinates Generator
+	
+		[x] [www.latlong.net](https://www.latlong.net/)
 
-[GPS Coordinates Generator: www.latlong.net](https://www.latlong.net/)
-
-[GPS Coordinates Generator: www.mapdevelopers.com](https://www.mapdevelopers.com/draw-circle-tool.php)
+		[x] [www.mapdevelopers.com](https://www.mapdevelopers.com/draw-circle-tool.php)
 
 
 ### License
