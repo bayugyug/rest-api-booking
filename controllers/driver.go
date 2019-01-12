@@ -66,11 +66,11 @@ func (api *ApiHandler) CreateDriver(w http.ResponseWriter, r *http.Request) {
 		Code:   http.StatusOK,
 		Status: "Create successful",
 		Result: map[string]interface{}{
-			"otp": data.Otp, 
+			"otp":        data.Otp,
 			"otp-expiry": data.OtpExpiry,
-			"mobile": data.Mobile, 
-			"uid": data.ID, 
-			},
+			"mobile":     data.Mobile,
+			"uid":        data.ID,
+		},
 	})
 
 }
@@ -185,14 +185,7 @@ func (api *ApiHandler) DeleteDriver(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	if data.Type != models.UserTypeDriver ||
-		data.Mobile == "" {
-		utils.Dumper("MISSING_REQUIRED_PARAMS", data)
-		//206
-		api.ReplyErrContent(w, r, http.StatusPartialContent, http.StatusText(http.StatusPartialContent))
-		return
-	}
-
+	
 	//token mismatched
 	if data.Mobile != token || token == "" || data.Mobile == "" {
 		utils.Dumper("INVALID_TOKEN:", token, data.Mobile)

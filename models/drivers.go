@@ -167,7 +167,6 @@ func (u *Driver) CreateDriver(ctx context.Context, db *sql.DB, data *Driver) (bo
 		return false, errors.New("Failed to create")
 	}
 	id, err := result.LastInsertId()
-	log.Println("LAST_INSERT_ID", id)
 	if err != nil || id < 1 {
 		log.Println("SQL_ERR", err)
 		return false, errors.New("Failed to create")

@@ -132,7 +132,6 @@ func (u *Customer) CreateCustomer(ctx context.Context, db *sql.DB, data *Custome
 		return false, errors.New("Failed to create")
 	}
 	id, err := result.LastInsertId()
-	log.Println("LAST_INSERT_ID", id)
 	if err != nil || id < 1 {
 		log.Println("SQL_ERR::NO_LAST_INSERT_ID", err)
 		return false, errors.New("Failed to create")
@@ -254,7 +253,6 @@ func (u *Customer) UpdateCustomerPass(ctx context.Context, db *sql.DB, data *Cus
 	return true, nil
 }
 
-
 func (u *Customer) UpdateCustomerPassTmp(ctx context.Context, db *sql.DB, data *Customer) (bool, error) {
 	//fmt
 	r := `UPDATE customers 
@@ -279,7 +277,6 @@ func (u *Customer) UpdateCustomerPassTmp(ctx context.Context, db *sql.DB, data *
 	//sounds good ;-)
 	return true, nil
 }
-
 
 func (u *Customer) UpdateCustomerStatus(ctx context.Context, db *sql.DB, status, mobile string) (bool, error) {
 	//fmt

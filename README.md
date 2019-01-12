@@ -72,7 +72,7 @@ curl -v -X POST 'http://127.0.0.1:8989/v1/api/login'    -d '{"mobile":"658157700
 #Customer Info	
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}"  -X GET 'http://127.0.0.1:8989/v1/api/customer/6581577001' 
 
-#Customer Update Status
+#Customer Update Password
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/password/customer'   -d '{"mobile":"6581577001","pass":"1234"}'
 
 #Customer Update GPS Coordinates	
@@ -87,7 +87,7 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 					"lastname": "dabis"
 					}'
 #Customer Delete	
-curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/customer'   -d '{"mobile":"6581579000","type":"customer"}'
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/customer'   -d '{"mobile":"6581579000"}'
 
  
 #Customer Update Status		
@@ -125,10 +125,13 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 					"lastname": "dabis"
 					}'
 #Driver Delete	
-curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/driver'   -d '{"mobile":"6581755001","type":"driver"}'
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/driver'   -d '{"mobile":"6581755001"}'
 
 #Driver Update Status		
 curl -v -H "Authorization: BEARER " -X PUT 'http://127.0.0.1:8989/v1/api/status/driver'   -d '{"mobile":"6581755001","status":"active"}'
+
+#Driver Update Password
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/password/driver'   -d '{"mobile":"6581755001","pass":"1234"}'
 
 #Driver List Within Nearest 50 KM Radius /drivers/{LATITUDE}/{LONGITUDE}
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}"  -X GET 'http://127.0.0.1:8989/v1/api/drivers/1.336209/103.737326'     
@@ -136,8 +139,6 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}"  -X GET 'http://127.0.0.1:
 #Driver Update Vehicle Status
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/vehiclestatus'   -d '{"mobile":"6581755001","status":"canceled","latitude":1.35991,"longitude":102.85615}'
 
-#Driver Update Status
-curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/password/driver'   -d '{"mobile":"6581755001","pass":"1234"}'
 
 #Booking Create
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X POST 'http://127.0.0.1:8989/v1/api/booking'  -d '{
