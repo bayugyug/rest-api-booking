@@ -86,9 +86,8 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 					"lastname": "dabis"
 					}'
 #Customer Delete	
-curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/customer'   -d '{"mobile":"6581579000"}'
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/customer/6581579000' 
 
- 
 #Customer Update Status		
 curl -v -H "Authorization: BEARER " -X PUT 'http://127.0.0.1:8989/v1/api/status/customer'   -d '{"mobile":"6581579001","status":"active"}'
 
@@ -124,7 +123,7 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 					"lastname": "dabis"
 					}'
 #Driver Delete	
-curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/driver'   -d '{"mobile":"6581755001"}'
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/driver/6581755001'
 
 #Driver Update Status		
 curl -v -H "Authorization: BEARER " -X PUT 'http://127.0.0.1:8989/v1/api/status/driver'   -d '{"mobile":"6581755001","status":"active"}'

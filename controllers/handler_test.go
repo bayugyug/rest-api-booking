@@ -86,9 +86,9 @@ func TestSomeHandler(t *testing.T) {
 		},
 		{
 			Method: "DELETE",
-			URL:    "/v1/api/customer",
+			URL:    "/v1/api/customer/6500000000",
 			Bearer: token1,
-			Body:   bytes.NewBufferString(`{"mobile":"6500000000"}`),
+			Body:   bytes.NewBufferString(``),
 		},
 		{
 			Method: "PUT",
@@ -135,8 +135,8 @@ func TestSomeHandler(t *testing.T) {
 		},
 		{
 			Method: "DELETE",
-			URL:    "/v1/api/driver",
-			Body:   bytes.NewBufferString(`{"mobile":"6500000001"}`),
+			URL:    "/v1/api/driver/6500000001",
+			Body:   bytes.NewBufferString(``),
 			Bearer: token2,
 		},
 		{

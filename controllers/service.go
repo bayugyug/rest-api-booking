@@ -199,7 +199,7 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Put("/", api.UpdateDriver)
 				sr.Get("/{id}", api.GetDriver)
-				sr.Delete("/", api.DeleteDriver)
+				sr.Delete("/{id}", api.DeleteDriver)
 				return sr
 			}(svc.Api))
 		r.Mount("/api/drivers",
@@ -222,7 +222,7 @@ func (svc *Service) MapRoute() *chi.Mux {
 				sr.Use(jwtauth.Verifier(utils.AppJwtToken.TokenAuth), svc.BearerChecker)
 				sr.Put("/", api.UpdateCustomer)
 				sr.Get("/{id}", api.GetCustomer)
-				sr.Delete("/", api.DeleteCustomer)
+				sr.Delete("/{id}", api.DeleteCustomer)
 				return sr
 			}(svc.Api))
 		r.Mount("/api/location",

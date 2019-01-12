@@ -177,24 +177,21 @@ func (api *ApiHandler) GetDriver(w http.ResponseWriter, r *http.Request) {
 
 func (api *ApiHandler) DeleteDriver(w http.ResponseWriter, r *http.Request) {
 	token := api.GetAuthToken(r)
-	data := &models.Driver{}
-	if err := render.Bind(r, data); err != nil {
-		utils.Dumper("BIND_FAILED", err)
-		//206
-		api.ReplyErrContent(w, r, http.StatusPartialContent, http.StatusText(http.StatusPartialContent))
-		return
-	}
-	defer r.Body.Close()
+	
+	mobile := strings.TrimSpace(chi.URLParam(r, "id"))
+	utils.Dumper("mobile", mobile, ",token", token)
+
 	
 	//token mismatched
-	if data.Mobile != token || token == "" || data.Mobile == "" {
-		utils.Dumper("INVALID_TOKEN:", token, data.Mobile)
+	if mobile != token || token == "" || mobile == "" {
+		utils.Dumper("INVALID_TOKEN:", token, mobile)
 		//403
 		api.ReplyErrContent(w, r, http.StatusForbidden, "Invalid token")
 		return
 	}
-
-	row, err := data.GetDriver(ApiService.Context, ApiService.DB, data.Mobile)
+	
+	data := &models.Driver{}
+	row, err := data.GetDriver(ApiService.Context, ApiService.DB, mobile)
 	//sanity
 	if err != nil {
 		utils.Dumper("RECORD_NOT_FOUND", err)
@@ -210,9 +207,9 @@ func (api *ApiHandler) DeleteDriver(w http.ResponseWriter, r *http.Request) {
 
 	}
 	//delete
-	oks, err := data.DeleteDriver(ApiService.Context, ApiService.DB, data.Mobile)
+	oks, err := data.DeleteDriver(ApiService.Context, ApiService.DB,mobile)
 	if !oks || err != nil {
-		utils.Dumper("RECORD_DELETE_FAILED", data.Mobile, err)
+		utils.Dumper("RECORD_DELETE_FAILED", mobile, err)
 		//400
 		api.ReplyErrContent(w, r, http.StatusBadRequest, "Record delete failed")
 		return
