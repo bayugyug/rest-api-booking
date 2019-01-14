@@ -79,17 +79,17 @@ curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8
 
 #Customer Update
 curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X PUT 'http://127.0.0.1:8989/v1/api/customer'  -d '{
-					"mobile":"6581579000",
+					"mobile":"6581577001",
 					"latitude":1.304832,
 					"longitude":103.852855,
-					"firstname":"customer",
+					"firstname":"customer-upd8",
 					"lastname": "dabis"
 					}'
 #Customer Delete	
-curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/customer/6581579000' 
+curl -v -H "Authorization: BEARER {TOKEN_FROM_LOGIN}" -X DELETE 'http://127.0.0.1:8989/v1/api/customer/6581577001' 
 
 #Customer Update Status		
-curl -v -H "Authorization: BEARER " -X PUT 'http://127.0.0.1:8989/v1/api/status/customer/6581579001/active'
+curl -v -H "Authorization: BEARER " -X PUT 'http://127.0.0.1:8989/v1/api/status/customer/6581577001/active'
 
 #Driver Create
 curl -v -X POST 'http://127.0.0.1:8989/v1/api/driver'  -d '{
